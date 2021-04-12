@@ -1,0 +1,10 @@
+References/
+Code/plots/
+
+# Ignore all files in the Tracker directory
+Tracker/*
+# Except tex, bib, pdf and pptx files
+!Tracker/*.tex
+!Tracker/*.bib
+!Tracker/*.pdf
+!Tracker/*.pptx
