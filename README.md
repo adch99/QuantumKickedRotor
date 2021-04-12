@@ -11,3 +11,5 @@ while doing a semester project on the quantum kicked rotor.
   `pyinstrument` which is a statistical profiler.
 * These programs are probably not the most efficient ways to generate
   these plots but I don't know much in order to optimise them.
+* Most of this code is in the python files and not in Jupyter Notebooks,
+  contrary to what GitHub may think.
