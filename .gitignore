@@ -1,5 +1,6 @@
 References/
 Code/plots/
+Code/__pycache__/
 
 # Ignore all files in the Tracker directory
 Tracker/*

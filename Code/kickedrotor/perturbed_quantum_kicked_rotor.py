@@ -1,11 +1,11 @@
 from sys import argv
 from datetime import date
+import time
 import numpy as np
 from scipy.special import jv # Bessel function of first kind
-from scipy.sparse import csr_matrix
+# from scipy.sparse import csr_matrix
 import matplotlib.pyplot as plt
 import seaborn as sns
-# from numba import jit
 sns.set()
 
 # Physical Constants
@@ -19,9 +19,9 @@ DELTATAU = 1e-2 / HBAR
 # Program Constants
 N = 1000
 DIM = 2*N + 1 # [-N, N]
-EPSILON = 1e-6
+EPSILON = 1e-9
 SAMPLES = 1
-TIMESPAN = 500
+TIMESPAN = 100
 
 def cmdArgSetter(argv):
     """
@@ -95,46 +95,81 @@ def densityOperator():
         rho += state.dot(state.getH()) * (1/SAMPLES)
     return np.matrix(rho)
 
+def findBesselBounds():
+    """
+    Finds the bounds on the v parameters of the Bessel jv
+    function such that the absolute value of function
+    jv(-K) is greater than EPSILON
+    """
+    v = 0
+    while np.abs(jv(v, -K)) > EPSILON:
+        v += 1
 
-def denseFloquetOperator(deltak=0, deltatau=0):
+    return v
+
+def denseFloquetOperator(besselBound, deltak=0, deltatau=0):
     """
     Returns the Floquet operator in a dense form in order
     to allow optimising without issues with sparse matrices.
+    [Sparse matrices have been removed in the recent versions
+    of this code.]
     """
     tau = TAU + deltatau
     k = K + deltak
-    n = np.arange(-N, N+1)
-    colgrid, rowgrid = np.meshgrid(n, n) # rowgrid, colgrid
-    F = np.exp(-1j * tau * colgrid**2 / 2) * jv(colgrid - rowgrid, -k) * (1j)**(colgrid - rowgrid)
+    # We take a liberal bound to account for the perturbations
+    # in k
+    bound = int(np.ceil(1.5 * besselBound))
+    if bound < N:
+        F = np.zeros((DIM, DIM), dtype=np.complex64)
+        for v in range(-bound, bound+1):
+            if v < 0:
+                cols = np.arange(-N, N+v+1) # The +v = - (-v) as v is negative
+            else:
+                cols = np.arange(-N+v, N+1)
+            diagv = (1j)**v * jv(v, -k) * np.exp(-1j * tau * cols**2 / 2)
+            # print(f"Length of diagv = {len(diagv)}")
+            # print(f"Length of cols = {len(cols)}")
+            F += np.diag(diagv, k=v)
+    else:
+        n = np.arange(-N, N+1)
+        colgrid, rowgrid = np.meshgrid(n, n)
+        F = np.exp(-1j * tau * colgrid**2 / 2) * jv(colgrid - rowgrid, -k) * (1j)**(colgrid - rowgrid)
+
     return F
 
-def floquetOperator(deltak=0, deltatau=0):
+def floquetOperator(bound, deltak=0, deltatau=0):
     """
-    Returns the floquet operator in sparse matrix form.
+    Returns the floquet operator in normal dense matrix form
+    with entries less than EPSILON zeroed out.
     """
-    F = denseFloquetOperator(deltak, deltatau)
+    F = denseFloquetOperator(bound, deltak, deltatau)
     F[np.abs(F) < EPSILON] = 0
     # sparsity = 1 - np.count_nonzero(F)/(2*N + 1)**2
     # print("Sparsity: %.10f" % sparsity)
     # print("Total F Sum: %.10f" % np.sum(F))
-    F_sparse = csr_matrix(F)
-    return F_sparse
+
+    # F_sparse = csr_matrix(F)
+    # return F_sparse
+
+    return np.matrix(F)
 
 def L2Operator():
     """
-    Returns L^2 operator in csr sparse matric form.
+    Returns L^2 operator in matrix form in ang momentum basis.
     """
     L2 = HBAR**2 * np.diag(np.arange(-N, N+1)**2)
-    L2_sparse = csr_matrix(L2)
-    return L2_sparse
+    # L2_sparse = csr_matrix(L2)
+    # return L2_sparse
+    return np.matrix(L2)
 
 def ensembleAvg(rho, T):
     """
     Ensemble average of the T operator.
     Given by tr(T*rho).
     """
-    product = csr_matrix.dot(rho, T)
-    return ( product.diagonal(0) ).sum()
+    # product = csr_matrix.dot(rho, T)
+    # return ( product.diagonal(0) ).sum()
+    return np.trace(T.dot(rho))
 
 def Ldistribution(rho):
     """
@@ -147,20 +182,14 @@ def Ldistribution(rho):
     p: DIM length 1d array containing probabilities of L = m hbar.
        The probabilities correspond to m = arange(-N, N+1).
     """
-    p = np.zeros(DIM)
-    for n in range(-N, N+1):
-        basis_vector = np.zeros(DIM)
-        basis_vector[n+N] = 1
-        basis_vector = csr_matrix(basis_vector).T
-        p[n+N] = (basis_vector.T.dot(csr_matrix.dot(rho, basis_vector))).item().real
-    return p
+    return np.diag(rho).real
 
 def evolve(rho, F, Fh):
     """
     Evolves the density operator by one
     time period step.
     """
-    return F.dot(csr_matrix.dot(rho, Fh))
+    return F.dot(np.dot(rho, Fh))
 
 def getPeriodPerturbations(cumulative=True):
     """
@@ -170,10 +199,10 @@ def getPeriodPerturbations(cumulative=True):
     cumulative = False means we correct for the previous perturbation
     in the next one.
     """
-    periodperturbations = np.random.uniform(-DELTATAU, DELTATAU, TIMESPAN)
+    period_perturbations = np.random.uniform(-DELTATAU, DELTATAU, TIMESPAN)
     if not cumulative:
-        periodperturbations[1:] -= periodperturbations[:-1]
-    return periodperturbations
+        period_perturbations[1:] -= period_perturbations[:-1]
+    return period_perturbations
 
 
 def run():
@@ -190,19 +219,21 @@ def run():
     rho = densityOperator()
     L2 = L2Operator()
     L4 = L2.dot(L2) # L^4 operator
-    L2ensembleavgs = np.zeros(TIMESPAN, dtype=np.complex64)
-    L2ensemblevars = np.zeros(TIMESPAN, dtype=np.complex64)
-    if DELTAK != 0:
-        kickperturbations = np.random.uniform(-DELTAK, DELTAK, TIMESPAN)
-    else:
-        kickperturbations = np.zeros(TIMESPAN)
-    if DELTATAU != 0:
-        periodperturbations = getPeriodPerturbations(cumulative=False)
-    else:
-        periodperturbations = np.zeros(TIMESPAN)
+    L2_ensemble_avgs = np.zeros(TIMESPAN, dtype=np.complex64)
+    L2_ensemble_vars = np.zeros(TIMESPAN, dtype=np.complex64)
+    bound = findBesselBounds()
 
-    standardrun = (DELTAK == 0 and DELTATAU == 0)
-    if standardrun:
+    if DELTAK != 0:
+        kick_perturbations = np.random.uniform(-DELTAK, DELTAK, TIMESPAN)
+    else:
+        kick_perturbations = np.zeros(TIMESPAN)
+    if DELTATAU != 0:
+        period_perturbations = getPeriodPerturbations(cumulative=False)
+    else:
+        period_perturbations = np.zeros(TIMESPAN)
+
+    standard_run = (DELTAK == 0 and DELTATAU == 0)
+    if standard_run:
         F = floquetOperator()
         Fh = F.getH()
 
@@ -212,18 +243,18 @@ def run():
         L4avg = ensembleAvg(rho, L4)
         L2var = L4avg - L2avg**2
 
-        L2ensembleavgs[t] = L2avg
-        L2ensemblevars[t] = L2var
+        L2_ensemble_avgs[t] = L2avg
+        L2_ensemble_vars[t] = L2var
 
-        if not standardrun:
-            F = floquetOperator(deltak=kickperturbations[t],
-                deltatau=periodperturbations[t])
+        if not standard_run:
+            F = floquetOperator(bound, deltak=kick_perturbations[t],
+                deltatau=period_perturbations[t])
             Fh = F.getH()
         rho = evolve(rho, F, Fh)
 
     probL = Ldistribution(rho)
 
-    return L2ensembleavgs, L2ensemblevars, probL
+    return L2_ensemble_avgs, L2_ensemble_vars, probL
 
 def plot(avgs, varis, p):
     """
@@ -263,8 +294,11 @@ def plot(avgs, varis, p):
     plt.savefig(filename)
 
 if __name__ == "__main__":
+    initial_time = time.process_time()
     cmdArgSetter(argv)
     avgs, varis, p = run()
     plot(avgs, varis, p)
+    final_time = time.process_time()
+    print(f"This program took {final_time - initial_time}s of CPU time.")
     # print("p:", p)
     plt.show()
