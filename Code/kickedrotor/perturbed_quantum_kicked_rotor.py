@@ -46,7 +46,8 @@ def cmdArgSetter(argv):
             global DELTATAU
             DELTATAU = float(argv[index+1])
 
-    for var, name in zip([N, TIMESPAN, DELTAK, DELTATAU], ["N", "TIMESPAN", "DELTAK", "DELTATAU"]):
+    for var, name in zip([N, TIMESPAN, DELTAK, DELTATAU],
+                        ["N", "TIMESPAN", "DELTAK", "DELTATAU"]):
         print(f"{name}: {var}")
 
 
@@ -107,7 +108,7 @@ def findBesselBounds():
 
     return v
 
-def denseFloquetOperator(besselBound, deltak=0, deltatau=0):
+def denseFloquetOperator(deltak=0, deltatau=0):
     """
     Returns the Floquet operator in a dense form in order
     to allow optimising without issues with sparse matrices.
@@ -116,33 +117,18 @@ def denseFloquetOperator(besselBound, deltak=0, deltatau=0):
     """
     tau = TAU + deltatau
     k = K + deltak
-    # We take a liberal bound to account for the perturbations
-    # in k
-    bound = int(np.ceil(1.5 * besselBound))
-    if bound < N:
-        F = np.zeros((DIM, DIM), dtype=np.complex64)
-        for v in range(-bound, bound+1):
-            if v < 0:
-                cols = np.arange(-N, N+v+1) # The +v = - (-v) as v is negative
-            else:
-                cols = np.arange(-N+v, N+1)
-            diagv = (1j)**v * jv(v, -k) * np.exp(-1j * tau * cols**2 / 2)
-            # print(f"Length of diagv = {len(diagv)}")
-            # print(f"Length of cols = {len(cols)}")
-            F += np.diag(diagv, k=v)
-    else:
-        n = np.arange(-N, N+1)
-        colgrid, rowgrid = np.meshgrid(n, n)
-        F = np.exp(-1j * tau * colgrid**2 / 2) * jv(colgrid - rowgrid, -k) * (1j)**(colgrid - rowgrid)
+    n = np.arange(-N, N+1)
+    colgrid, rowgrid = np.meshgrid(n, n)
+    F = np.exp(-1j * tau * colgrid**2 / 2) * jv(colgrid - rowgrid, -k) * (1j)**(colgrid - rowgrid)
 
     return F
 
-def floquetOperator(bound, deltak=0, deltatau=0):
+def floquetOperator(deltak=0, deltatau=0):
     """
     Returns the floquet operator in normal dense matrix form
     with entries less than EPSILON zeroed out.
     """
-    F = denseFloquetOperator(bound, deltak, deltatau)
+    F = denseFloquetOperator(deltak, deltatau)
     F[np.abs(F) < EPSILON] = 0
     # sparsity = 1 - np.count_nonzero(F)/(2*N + 1)**2
     # print("Sparsity: %.10f" % sparsity)
@@ -221,7 +207,6 @@ def run():
     L4 = L2.dot(L2) # L^4 operator
     L2_ensemble_avgs = np.zeros(TIMESPAN, dtype=np.complex64)
     L2_ensemble_vars = np.zeros(TIMESPAN, dtype=np.complex64)
-    bound = findBesselBounds()
 
     if DELTAK != 0:
         kick_perturbations = np.random.uniform(-DELTAK, DELTAK, TIMESPAN)
@@ -247,7 +232,7 @@ def run():
         L2_ensemble_vars[t] = L2var
 
         if not standard_run:
-            F = floquetOperator(bound, deltak=kick_perturbations[t],
+            F = floquetOperator(deltak=kick_perturbations[t],
                 deltatau=period_perturbations[t])
             Fh = F.getH()
         rho = evolve(rho, F, Fh)

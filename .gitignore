@@ -1,6 +1,8 @@
 References/
 Code/plots/
-Code/__pycache__/
+__pycache__/ # Don't include any pycache dirs
+.ipynb_checkpoints/
+*.pyc
 
 # Ignore all files in the Tracker directory
 Tracker/*
