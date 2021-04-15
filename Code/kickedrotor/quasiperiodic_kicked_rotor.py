@@ -9,24 +9,24 @@ import seaborn as sns
 
 # Physical Constants
 # HBAR = 1.0545718e-34
-HBAR = 1
+HBAR = 2.85
 TAU = 1
-ALPHA = 0 # Quasiperiodicity constant
+ALPHA = 0.413 # Quasiperiodicity constant
 OMEGA2 = 2 * np.pi * np.sqrt(5)
 OMEGA3 = 2 * np.pi * np.sqrt(13)
-KMIN = 5
-KMAX = 7
+KMIN = 6.24
+KMAX = 6.58
 DELTAK = 0 # 1e-2 / HBAR
 DELTATAU = 0 #1e-2 / HBAR
 
 # Program Constants
-N = 1000
+N = 750
 DIM = 2*N + 1 # [-N, N]
 EPSILON = 1e-9
 SAMPLES = 1
-KSAMPLES = 5
-TIMESPAN = 200
-TMIN = 30
+KSAMPLES = 20
+TIMESPAN = 2000
+TMIN = 75
 
 def cmdArgSetter(argv):
     """
@@ -116,7 +116,7 @@ def denseFloquetOperator(t, base_strength, deltak=0, deltatau=0):
     kick_strength = k * (1 + ALPHA * np.cos(OMEGA2 * t * tau) * np.cos(OMEGA3 * t * tau))
     n = np.arange(-N, N+1)
     colgrid, rowgrid = np.meshgrid(n, n)
-    F = np.exp(-1j * tau * colgrid**2 / (2*HBAR)) \
+    F = np.exp(-1j * HBAR * tau * colgrid**2 / 2) \
         * jv(colgrid - rowgrid, -kick_strength / HBAR) \
         * (1j)**(colgrid - rowgrid)
     return F
@@ -127,7 +127,7 @@ def floquetOperator(t, base_strength, deltak=0, deltatau=0):
     with entries less than EPSILON zeroed out.
     """
     F = denseFloquetOperator(t, base_strength, deltak, deltatau)
-    F[np.abs(F) < EPSILON] = 0
+    # F[np.abs(F) < EPSILON] = 0
     return np.matrix(F)
 
 def L2Operator():
@@ -191,29 +191,21 @@ def run(k):
     L2 = L2Operator()
     L2_ensemble_avgs = np.zeros(TIMESPAN, dtype=np.complex64)
 
-    if DELTAK != 0:
-        kick_perturbations = np.random.uniform(-DELTAK, DELTAK, TIMESPAN)
-    else:
-        kick_perturbations = np.zeros(TIMESPAN)
-    if DELTATAU != 0:
-        period_perturbations = getPeriodPerturbations(cumulative=False)
-    else:
-        period_perturbations = np.zeros(TIMESPAN)
-
+    print("Running cycle no: ", end="", flush=True)
     for t in range(TIMESPAN):
-        print(f"Starting cycle no {t}...")
+        print(f"{t} ", end="", flush=True)
         L2avg = ensembleAvg(rho, L2)
         L2_ensemble_avgs[t] = L2avg
 
-        F = floquetOperator(t+1, k, deltak=kick_perturbations[t],
-            deltatau=period_perturbations[t])
+        F = floquetOperator(t+1, k)
         Fh = F.getH()
         rho = evolve(rho, F, Fh)
+    print()
+    print()
 
     probL = Ldistribution(rho)
-    time = np.arange(0, TIMESPAN)
-    log_lambdas = np.log(L2_ensemble_avgs * time**(-2/3) / HBAR**2)
-
+    time = np.arange(TMIN, TIMESPAN) * TAU
+    log_lambdas = np.log(L2_ensemble_avgs[TMIN:].real) - (2.0/3.0)*np.log(time)
     plotAvg(L2_ensemble_avgs, probL, k)
 
     return log_lambdas
@@ -233,10 +225,13 @@ def plotAvg(avgs, probL, k):
     ax2.set_ylabel(r"$p(L = m \hbar)$")
     ax2.set_yscale("log")
 
+    plt.savefig(f"plots/quasiperiodic_plots/quasiperiodic_avgs_K{k}.png")
+    plt.close(fig)
+
 
 def main():
     kvalues = np.linspace(KMIN, KMAX, KSAMPLES)
-    log_lambda_collection = np.empty((KSAMPLES, TIMESPAN))
+    log_lambda_collection = np.empty((KSAMPLES, TIMESPAN-TMIN))
     for i, k in enumerate(kvalues):
         log_lambda_collection[i,:] = run(k)
 
@@ -249,11 +244,17 @@ def plot(log_lambda_collection):
     """
     fig, ax = plt.subplots(nrows=1, ncols=1)
 
+    cmap = sns.color_palette("flare", as_cmap=True)
+    colours = cmap(np.linspace(0, 1, TIMESPAN-TMIN))
+
     k = np.linspace(KMIN, KMAX, KSAMPLES)
-    for t, log_lambdas in enumerate(log_lambda_collection.T):
-        if t > TMIN:
-            ax.scatter(k, log_lambdas, label=f"{t}")
-            ax.plot(k, log_lambdas, linestyle="--", alpha=0.6)
+
+    for t, log_lambdas in enumerate(log_lambda_collection.T, start=TMIN):
+        ax.plot(k, log_lambdas,
+            linestyle="--",
+            alpha=0.6,
+            marker="o",
+            color=colours[t-TMIN])
 
     title = f"Quasiperiodic Quantum Kicked Rotor [TAU={TAU}, DIM={DIM}," \
             f" T={TIMESPAN}]"
@@ -262,7 +263,7 @@ def plot(log_lambda_collection):
     ax.set_xlabel("K")
     # plt.legend()
 
-    filename = f"plots/quasiperiodic_T{TIMESPAN}DIM{DIM}_{date.today()}.png"
+    filename = f"plots/quasiperiodic_T{TIMESPAN}DIM{DIM}ALPHA{ALPHA}HBAR{HBAR}_{date.today()}.png"
     plt.savefig(filename)
 
 
@@ -270,8 +271,8 @@ if __name__ == "__main__":
     sns.set()
     initial_time = time.process_time()
     cmdArgSetter(argv)
-    # main()
-    run(5)
+    main()
+    # run(8)
     final_time = time.process_time()
     print(f"This program took {final_time - initial_time}s of CPU time.")
     # print("p:", p)

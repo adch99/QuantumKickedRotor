@@ -9,7 +9,7 @@ sns.set()
 
 # Physical Constants
 # hbar = 1.0545718e-34
-hbar = 1
+hbar = 2.85
 tau = 1 * hbar
 k = 5 / hbar
 
@@ -18,7 +18,7 @@ N = 1000
 DIM = 2*N + 1 # [-N, N]
 EPSILON = 1e-6
 SAMPLES = 1
-TIMESPAN = 5000
+TIMESPAN = 1000
 
 
 def cis(theta):
