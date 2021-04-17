@@ -6,6 +6,7 @@ from scipy.special import jv # Bessel function of first kind
 # from scipy.sparse import csr_matrix
 import matplotlib.pyplot as plt
 import seaborn as sns
+from numba import jit
 
 # Physical Constants
 # HBAR = 1.0545718e-34
@@ -21,12 +22,13 @@ DELTAK = 0 # 1e-2 / HBAR
 DELTATAU = 0 #1e-2 / HBAR
 
 # Program Constants
-N = 500
+N = 100
 DIM = 2*N + 1 # [-N, N]
 EPSILON = 1e-9
-SAMPLES = 10
-KSAMPLES = 20
-TIMESPAN = 500
+SAMPLES = 1
+KSAMPLES = 5
+PHISAMPLES = 10
+TIMESPAN = 1000
 TMIN = 30
 
 def cmdArgSetter(argv):
@@ -92,20 +94,21 @@ def densityOperator():
     """
     Returns the density operator of the initial state.
     """
-    states = uniformDistOnNSphere()
+    # states = uniformDistOnNSphere()
     # states = np.eye(DIM, SAMPLES) / SAMPLES
-    #states = np.array([zeroMomentumState()]).T
+    states = np.array([zeroMomentumState()]).T
     # print("states.shape:", states.shape)
     rho = np.zeros((DIM, DIM), dtype=np.complex64)
     for i in range(SAMPLES):
         state = np.matrix(states[:, i]).T
         rho += state.dot(state.getH()) * (1/SAMPLES)
-        
-    print(f"Tr(rho) = {np.trace(rho)}")
-    print(f"Tr(rho^2) = {np.trace(rho.dot(rho))}")
+
+    # print(f"Tr(rho) = {np.trace(rho)}")
+    # print(f"Tr(rho^2) = {np.trace(rho.dot(rho))}")
     return np.matrix(rho)
 
-def denseFloquetOperator(t: int, base_strength: float, alpha: float, deltak: float, deltatau: float):
+def denseFloquetOperator(t: int, base_strength: float, alpha = 0.0,
+    phi2 = 0.0, phi3 = 0.0, deltak = 0.0, deltatau = 0.0):
     """
     Returns the Floquet operator in a dense form in order
     to allow optimising without issues with sparse matrices.
@@ -116,7 +119,7 @@ def denseFloquetOperator(t: int, base_strength: float, alpha: float, deltak: flo
     k = base_strength + deltak
 
     # Kick strength is k (1 + α cos(ω_2 t τ) cos(ω3 t τ))
-    kick_strength = k * (1 + alpha * np.cos(OMEGA2 * t * tau) * np.cos(OMEGA3 * t * tau))
+    kick_strength = k * (1 + alpha * np.cos(OMEGA2 * t * tau + phi2) * np.cos(OMEGA3 * t * tau + phi3))
     n = np.arange(-N, N+1)
     colgrid, rowgrid = np.meshgrid(n, n)
     F = np.exp(-1j * HBAR * tau * colgrid**2 / 2) \
@@ -124,12 +127,12 @@ def denseFloquetOperator(t: int, base_strength: float, alpha: float, deltak: flo
         * (1j)**(colgrid - rowgrid)
     return F
 
-def floquetOperator(t, base_strength, alpha, deltak=0, deltatau=0):
+def floquetOperator(t, base_strength, **params):
     """
     Returns the floquet operator in normal dense matrix form
     with entries less than EPSILON zeroed out.
     """
-    F = denseFloquetOperator(t, base_strength, alpha, deltak, deltatau)
+    F = denseFloquetOperator(t, base_strength, **params)
     F[np.abs(F) < EPSILON] = 0
     return np.matrix(F, dtype=np.complex64)
 
@@ -160,6 +163,7 @@ def Ldistribution(rho):
     """
     return np.diag(rho).real
 
+@jit(nopython=True)
 def evolve(rho, F, Fh):
     """
     Evolves the density operator by one
@@ -181,44 +185,42 @@ def getPeriodPerturbations(cumulative=True):
     return period_perturbations
 
 
-def run(k, alpha):
+def run(k, **params):
     """
     Runs the simulation for a particular k and alpha value.
 
     Output:
     ------
     """
-    print(f"Starting run for k = {k}, alpha = {alpha}...")
+    # print(f"Starting run for k = {k}, alpha = {alpha}...")
 
     rho = densityOperator()
     L2 = L2Operator()
     L2_ensemble_avgs = np.zeros(TIMESPAN, dtype=np.complex64)
 
-    print("Running cycle no: ", end="", flush=True)
+    # print("Running cycle no: ", end="", flush=True)
     for t in range(TIMESPAN):
-        print(f"{t} ", end="", flush=True)
+        # print(f"{t} ", end="", flush=True)
         L2avg = ensembleAvg(rho, L2)
         L2_ensemble_avgs[t] = L2avg
 
-        F = floquetOperator(t+1, k, alpha)
+        F = floquetOperator(t+1, k, **params)
         Fh = F.getH()
         rho = evolve(rho, F, Fh)
-    print()
-    print()
+    # print()
+    # print()
 
-    probL = Ldistribution(rho)
-    time = np.arange(TMIN, TIMESPAN) * TAU
-    log_lambdas = np.log(L2_ensemble_avgs[TMIN:].real) - (2.0/3.0)*np.log(time)
-    plotAvg(L2_ensemble_avgs.real, probL, k, alpha)
+    # probL = Ldistribution(rho)
+    # plotAvg(L2_ensemble_avgs.real, probL, k, **params)
 
-    return log_lambdas
+    return L2_ensemble_avgs.real[TMIN:]
 
-def plotAvg(avgs, probL, k, alpha):
+def plotAvg(avgs, probL, k):
     t = np.arange(TIMESPAN)
     m = np.arange(-N, N+1)
     fig, (ax1, ax2) = plt.subplots(nrows=1, ncols=2)
     ax1.plot(t, avgs, label="k")
-    ax1.set_title(f"K = {k} alpha = {alpha} hbar={HBAR}")
+    ax1.set_title(f"K = {k} hbar={HBAR}")
     ax1.set_xlabel("t")
     ax1.set_ylabel(r"$[L^2]$")
 
@@ -235,9 +237,25 @@ def plotAvg(avgs, probL, k, alpha):
 def main():
     kvalues = np.linspace(KMIN, KMAX, KSAMPLES)
     alphavalues = np.linspace(ALPHAMIN, ALPHAMAX, KSAMPLES)
+    phivalues = np.linspace(0, 2*np.pi, PHISAMPLES)
     log_lambda_collection = np.empty((KSAMPLES, TIMESPAN-TMIN))
+    time = np.arange(TMIN, TIMESPAN) * TAU
+    log_time = (2.0 / 3.0) * np.log(time)
     for i, k in enumerate(kvalues):
-        log_lambda_collection[i,:] = run(k, alphavalues[i])
+        avg = np.zeros(TIMESPAN-TMIN)
+        for phi2 in phivalues:
+            for phi3 in phivalues:
+                params = {
+                    "alpha": alphavalues[i],
+                    "phi2": phi2,
+                    "phi3": phi3,
+                    "deltak": 0.0,
+                    "deltatau": 0.0
+                }
+                avg += run(k, **params) / HBAR**2
+                print("|", end="", flush=True)
+        print()
+        log_lambda_collection[i,:] = np.log(avg / PHISAMPLES**2) - log_time
 
     plot(log_lambda_collection)
 
@@ -246,15 +264,15 @@ def plot(log_lambda_collection):
     """
     Plots the data generated by running the simulation.
     """
-    fig, ax = plt.subplots(nrows=1, ncols=1)
+    fig, (ax1, ax2) = plt.subplots(nrows=1, ncols=2, figsize=(12, 8))
 
     cmap = sns.color_palette("flare", as_cmap=True)
     colours = cmap(np.linspace(0, 1, TIMESPAN-TMIN))
 
-    k = np.linspace(KMIN, KMAX, KSAMPLES)
+    kvalues = np.linspace(KMIN, KMAX, KSAMPLES)
 
     for t, log_lambdas in enumerate(log_lambda_collection.T, start=TMIN):
-        ax.plot(k, log_lambdas,
+        ax1.plot(kvalues, log_lambdas,
             linestyle="--",
             alpha=0.6,
             marker="o",
@@ -262,9 +280,14 @@ def plot(log_lambda_collection):
 
     title = f"Quasiperiodic Quantum Kicked Rotor [TAU={TAU}, DIM={DIM}," \
             f" T={TIMESPAN}]"
-    ax.set_title(title)
-    ax.set_ylabel(r"$ln \Lambda$")
-    ax.set_xlabel("K")
+    fig.suptitle(title)
+    ax1.set_ylabel(r"$ln \Lambda$")
+    ax1.set_xlabel("K")
+
+    t = np.arange(TMIN, TIMESPAN)
+    for index, k in enumerate(kvalues):
+        ax2.plot(t, log_lambda_collection[index], label=f"k = {k}")
+    ax2.legend()
     # plt.legend()
 
     filename = f"plots/quasiperiodic_T{TIMESPAN}DIM{DIM}HBAR{HBAR}_{date.today()}.png"

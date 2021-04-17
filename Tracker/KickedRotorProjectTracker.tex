@@ -107,11 +107,18 @@ Deadline: Next Saturday (10 April 2021)
     \item Read up on the quasi-periodic kicked rotor and the metal-insulator transition in it.
 \end{enumerate}
 
-\subsection{Randomly Kicked Rotor}
-\begin{equation}
-    
-\end{equation}
+\section{Week 8}
+Deadline: Saturday 17 April 2021 3:30 PM
 
+\subsection{Problems with the results}
+\begin{enumerate}
+    \item In order to get the same results as them, we need to run till $t = 10^6$ steps,
+    and for at least 1000 initial conditions of $(\phi_2, \phi_3)$. That comes to $10^9$ evolutions,
+    which is a lot. And for $t = 10^6$, we'd have to account for diffusion in momentum space by
+    taking as high a dimensionality for our simulation space. Time required for each time step goes
+    over 2s per step for as low as 2001 dimensional space. For context, the run with 1000 timesteps,
+    201 dimensional space and 100 initial conditions of $(\phi_2,\phi_3)$ took around 2 hrs.
+\end{enumerate}
 
 \nocite{*}
 \printbibliography
