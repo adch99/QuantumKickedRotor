@@ -119,7 +119,8 @@ def denseFloquetOperator(t: int, base_strength: float, alpha = 0.0,
     k = base_strength + deltak
 
     # Kick strength is k (1 + α cos(ω_2 t τ) cos(ω3 t τ))
-    kick_strength = k * (1 + alpha * np.cos(OMEGA2 * t * tau + phi2) * np.cos(OMEGA3 * t * tau + phi3))
+    kick_strength = k * (1 + alpha * np.cos(OMEGA2 * t * tau + phi2) \
+                    * np.cos(OMEGA3 * t * tau + phi3))
     n = np.arange(-N, N+1)
     colgrid, rowgrid = np.meshgrid(n, n)
     F = np.exp(-1j * HBAR * tau * colgrid**2 / 2) \
@@ -216,6 +217,10 @@ def run(k, **params):
     return L2_ensemble_avgs.real[TMIN:]
 
 def plotAvg(avgs, probL, k):
+    """
+    Plots the avg <L^2> value for the run along with the probability
+    distribution of p(L = mħ).
+    """
     t = np.arange(TIMESPAN)
     m = np.arange(-N, N+1)
     fig, (ax1, ax2) = plt.subplots(nrows=1, ncols=2)
@@ -235,6 +240,9 @@ def plotAvg(avgs, probL, k):
 
 
 def main():
+    """
+    The main control function to produce the ln Λ vs K graph.
+    """
     kvalues = np.linspace(KMIN, KMAX, KSAMPLES)
     alphavalues = np.linspace(ALPHAMIN, ALPHAMAX, KSAMPLES)
     phivalues = np.linspace(0, 2*np.pi, PHISAMPLES)
@@ -296,6 +304,11 @@ def smallOscillationVisualization():
     plotSmallOscillations(log_lambdas, log_avg_lambda)
 
 def energyEvolution(krange: tuple, alpha_range: tuple):
+    """
+    Takes KSAMPLES values of k in krange and corresponding
+    values in alpha_range. Runs the simulation for each of
+    these value sets and plots the energy (<p^2>) vs time.
+    """
     kvalues = np.linspace(*krange, KSAMPLES)
     alpha_values = np.linspace(*alpha_range, KSAMPLES)
     avgs = np.empty((KSAMPLES, TIMESPAN-TMIN))
@@ -306,14 +319,20 @@ def energyEvolution(krange: tuple, alpha_range: tuple):
     plotEnergy(avgs, kvalues, alpha_values)
 
 def plotEnergy(avgs, kvalues, alpha_values):
+    """
+    Plots the avg energy <L^2>/2 in units of HBAR**2
+    for each value pair of (k, alpha) given. The number
+    of values in kvalues and alpha_values should be
+    KSAMPLES each.
+    """
     fig, ax = plt.subplots(nrows=KSAMPLES, ncols=1, sharex=True,
         figsize=(12, KSAMPLES*3))
     time = np.arange(TIMESPAN-TMIN)
 
     for i in range(KSAMPLES):
-        ax[i].plot(time, avgs[i, :])
+        ax[i].plot(time, avgs[i, :]/(2*HBAR**2))
         ax[i].set_xlabel("t")
-        ax[i].set_ylabel(r"$<p^2> / \hbar^2$")
+        ax[i].set_ylabel(r"$\frac{L^2}{2\hbar^2}$")
         ax[i].set_title(f"k = {kvalues[i]}, alpha = {alpha_values[i]}")
 
     fig.suptitle("Energy Evolution of Quasiperiodic Kicked Rotor")
