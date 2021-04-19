@@ -27,7 +27,7 @@ DIM = 2*N + 1 # [-N, N]
 EPSILON = 1e-9
 SAMPLES = 1
 KSAMPLES = 5
-PHISAMPLES = 10
+PHISAMPLES = 5
 TIMESPAN = 1000
 TMIN = 30
 
@@ -259,6 +259,89 @@ def main():
 
     plot(log_lambda_collection)
 
+def smallOscillationVisualization():
+    """
+    We calculate the time evolution till 10^5 for a certain parameter
+    set of omega2, omega3, kbar, k and alpha. We calculate this for
+    several values of phi2, phi3. For each choice of phi2, phi3 we plot
+    ln Λ vs t for it. Then we plot ln Λ vs t for the average of all the
+    initial conditions i.e choices for phi2, phi3. The average suppresses
+    the small oscillation corrections and we can see the small oscillations
+    contributions in the curves corresponding to the various choices of
+    phi2, phi3.
+    """
+
+    k = 2.89
+    alpha = 0
+    phivalues = np.linspace(0, 2*np.pi, PHISAMPLES)
+    avgs = np.empty((PHISAMPLES, PHISAMPLES, TIMESPAN-TMIN))
+
+    for i, phi2 in enumerate(phivalues):
+        for j, phi3 in enumerate(phivalues):
+            params = {
+                "alpha": 0.3,
+                "phi2": phi2,
+                "phi3": phi3,
+                "deltak": 0.0,
+                "deltatau": 0.0
+            }
+            avgs[i, j, :] = run(k, **params)
+            print("|", end="", flush=True)
+        print()
+
+    time = np.arange(TMIN, TIMESPAN) * TAU
+    log_lambdas = np.log(avgs) - (2.0/3.0) * np.log(time)
+    overall_avg = np.mean(avgs, axis=(0,1))
+    log_avg_lambda = np.log(overall_avg) - (2.0 / 3.0) * np.log(time)
+    plotSmallOscillations(log_lambdas, log_avg_lambda)
+
+def energyEvolution(krange: tuple, alpha_range: tuple):
+    kvalues = np.linspace(*krange, KSAMPLES)
+    alpha_values = np.linspace(*alpha_range, KSAMPLES)
+    avgs = np.empty((KSAMPLES, TIMESPAN-TMIN))
+    for i in range(KSAMPLES):
+        params = {"alpha": alpha_values[i]}
+        avgs[i, :] = run(kvalues[i], **params)
+
+    plotEnergy(avgs, kvalues, alpha_values)
+
+def plotEnergy(avgs, kvalues, alpha_values):
+    fig, ax = plt.subplots(nrows=KSAMPLES, ncols=1, sharex=True,
+        figsize=(12, KSAMPLES*3))
+    time = np.arange(TIMESPAN-TMIN)
+
+    for i in range(KSAMPLES):
+        ax[i].plot(time, avgs[i, :])
+        ax[i].set_xlabel("t")
+        ax[i].set_ylabel(r"$<p^2> / \hbar^2$")
+        ax[i].set_title(f"k = {kvalues[i]}, alpha = {alpha_values[i]}")
+
+    fig.suptitle("Energy Evolution of Quasiperiodic Kicked Rotor")
+    fig.tight_layout()
+    fig.savefig(f"plots/quasiperiodic_energy_evolution_{date.today()}.png")
+
+def plotSmallOscillations(log_lambdas, log_avg_lambda):
+    """
+    Plots ln Λ vs t for each of the sampled (phi2, phi3) values
+    along with the same plot for their average. This shows the
+    contribution of the small oscillations.
+    """
+    fig, ax = plt.subplots(nrows = 1, ncols = 1, figsize=(12, 4))
+    phivalues = np.linspace(0, 2*np.pi, PHISAMPLES)
+    time = np.arange(TMIN, TIMESPAN)
+
+    for i, phi2 in enumerate(phivalues):
+        for j, phi3 in enumerate(phivalues):
+            ax.plot(time, log_lambdas[i, j, :],
+                label=f"{phi2:2.2f},{phi3:2.2f}", alpha=0.75,
+                linewidth=1)
+    ax.plot(time, log_avg_lambda, label="Average", linewidth=3)
+    ax.set_xlabel(r"$t$")
+    ax.set_ylabel(r"$ln \Lambda$")
+    fig.suptitle("Small Oscillation Visualization")
+    plt.tight_layout()
+    plt.savefig(f"plots/quasiperiodic_small_oscillation_plot{PHISAMPLES}.png")
+
 
 def plot(log_lambda_collection):
     """
@@ -298,8 +381,10 @@ if __name__ == "__main__":
     sns.set()
     initial_time = time.process_time()
     cmdArgSetter(argv)
-    main()
+    # main()
     # run(8)
+    energyEvolution((3,9), (0.1, 1))
+    # smallOscillationVisualization()
     final_time = time.process_time()
     print(f"This program took {final_time - initial_time}s of CPU time.")
     # print("p:", p)
