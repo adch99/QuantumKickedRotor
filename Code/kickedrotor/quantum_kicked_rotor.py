@@ -9,7 +9,7 @@ sns.set()
 
 # Physical Constants
 # hbar = 1.0545718e-34
-hbar = 2.85
+hbar = 1
 tau = 1 * hbar
 k = 5 / hbar
 
@@ -18,7 +18,7 @@ N = 1000
 DIM = 2*N + 1 # [-N, N]
 EPSILON = 1e-6
 SAMPLES = 1
-TIMESPAN = 1000
+TIMESPAN = 500
 
 
 def cis(theta):
@@ -72,7 +72,7 @@ def floquetOperator():
     # print(f"|F| = {detF}\t sign = {sign}\t logdetF = {logdetF}")
     # print(F)
     # F /= detF
-    sparsity = 1 - np.count_nonzero(F)/(2*N + 1)**2
+    # sparsity = 1 - np.count_nonzero(F)/(2*N + 1)**2
     # print("Sparsity: %.10f" % sparsity)
     # print("Total F Sum: %.10f" % np.sum(F))
     F_sparse = csr_matrix(F)

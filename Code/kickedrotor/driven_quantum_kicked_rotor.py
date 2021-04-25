@@ -26,14 +26,14 @@ K = 5 / HBAR
 DELTAK = 0 # 1e-2 / HBAR
 DELTATAU = 0 #1e-2 / HBAR
 BETA = 1e-2
-OMEGA = 1
+OMEGA = 2 * np.pi / 10
 
 # Program Constants
 N = 1000
 DIM = 2*N + 1 # [-N, N]
 EPSILON = 1e-9
 SAMPLES = 1
-TIMESPAN = 100
+TIMESPAN = 500
 
 def cmdArgSetter(argv):
     """
@@ -131,7 +131,8 @@ def denseFloquetOperator(t, deltak=0, deltatau=0):
     k = K + deltak
     n = np.arange(-N, N+1)
     colgrid, rowgrid = np.meshgrid(n, n)
-    F = np.exp(-1j * BETA * np.sin(OMEGA * t * TAU) / (HBAR * OMEGA)) \
+    sine_diff = np.sin(OMEGA * t * TAU) - np.sin(OMEGA * (t-1) * TAU)
+    F = np.exp(-1j * BETA * sine_diff / (HBAR * OMEGA)) \
         * np.exp(-1j * tau * colgrid**2 / 2) \
         * jv(colgrid - rowgrid, -k) \
         * (1j)**(colgrid - rowgrid)

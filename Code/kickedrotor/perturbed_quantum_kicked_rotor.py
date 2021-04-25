@@ -14,14 +14,14 @@ HBAR = 1
 TAU = 1 * HBAR
 K = 5 / HBAR
 DELTAK = 0 # 1e-2 / HBAR
-DELTATAU = 1e-2 / HBAR
+DELTATAU = 0 #1e-2 / HBAR
 
 # Program Constants
 N = 1000
 DIM = 2*N + 1 # [-N, N]
 EPSILON = 1e-9
 SAMPLES = 1
-TIMESPAN = 100
+TIMESPAN = 1000
 
 def cmdArgSetter(argv):
     """

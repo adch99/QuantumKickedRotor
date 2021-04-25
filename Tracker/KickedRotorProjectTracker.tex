@@ -3,6 +3,7 @@
 
 \usepackage{braket}
 \usepackage{amsmath}
+\usepackage{amsfonts}
 \usepackage{ulem}
 \usepackage{biblatex}
 \addbibresource{Readings.bib}
@@ -121,6 +122,37 @@ Deadline: Saturday 17 April 2021 3:30 PM
     
     \item 
 \end{enumerate}
+
+\section{Week 9}
+\subsection{Driving Perturbation}
+Consider the following Hamiltonian:
+
+\begin{align*}
+    H &= \frac{p^2}{2}
+    + K (1 + \epsilon cos(\omega_2 t + \phi_2) cos(\omega_3 t + \phi_3))
+    \sum_{n \in \mathbb{Z}} \delta(t - n) + \lambda F_0 cos(\Omega t) \\
+    &\text{Switching to the 3d rotor with quasimomenta.} \\
+    H &= \frac{p_1^2}{2} + p_2 \omega_2 + p_3 \omega_3
+    + K (1 + \epsilon \ cos\theta_2 \ cos\theta_3)
+    \sum_{n \in \mathbb{Z}} \delta(t - n) + \lambda F_0 cos(\Omega t)
+\end{align*}
+
+The time evolution from $n-1$ to $n-\Delta t$ is:
+
+\begin{align*}
+    U_{\Delta t} &= exp(\frac{-i}{\hbar} \int_{n-1}^{n-\Delta t} dt H) \\
+    &= exp(\frac{-i}{\hbar}\int_{n-1}^{n-\Delta t} dt (H_0 + \lambda H')) \\
+    &= exp(\frac{-i}{\hbar} (p_1^2/2 + p_2 \omega_2 + p_3 \omega_3)(1 - \Delta t))
+    exp(\frac{-i\lambda F_0}{\hbar \Omega}(sin(\Omega (n - \Delta t)) - sin(\Omega (n-1)))) \\
+    F &= exp(\frac{-i}{\hbar}k(1 + \epsilon cos\theta_2 cos\theta_3)) \lim_{\Delta t \to 0} U_{\Delta t} \\
+    F &= exp(\frac{-i}{\hbar}k(1 + \epsilon cos(\omega_2 t + \phi_2) cos(\omega_3 t + \phi_3))) \\ 
+    &\cdot exp(\frac{-ip^2}{2\hbar}) exp(\frac{-i\lambda F_0}{\hbar \Omega}(sin(n \Omega) - sin((n-1) \Omega ))) 
+\end{align*}
+
+This is under the approximation that the hamiltonian $H$ is
+dominated by the kick term during the interval $n-\Delta t$ to $n$.
+That implies that $|cos(n\Omega)\Delta t| << k (1 - \epsilon)$ where
+$\Delta t$ is the width of the kick pulse in a physical setting.
 
 \nocite{*}
 \printbibliography

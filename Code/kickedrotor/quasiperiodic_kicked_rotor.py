@@ -26,7 +26,7 @@ N = 100
 DIM = 2*N + 1 # [-N, N]
 EPSILON = 1e-9
 SAMPLES = 1
-KSAMPLES = 5
+KSAMPLES = 9
 PHISAMPLES = 5
 TIMESPAN = 1000
 TMIN = 30
@@ -325,10 +325,11 @@ def plotEnergy(avgs, kvalues, alpha_values):
     of values in kvalues and alpha_values should be
     KSAMPLES each.
     """
-    fig, ax = plt.subplots(nrows=KSAMPLES, ncols=1, sharex=True,
-        figsize=(12, KSAMPLES*3))
+    nrows = int(np.ceil(KSAMPLES / 3))
+    fig, ax = plt.subplots(nrows=nrows, ncols=3, sharex=True,
+        figsize=(12, nrows*4))
     time = np.arange(TIMESPAN-TMIN)
-
+    ax = ax.flatten()
     for i in range(KSAMPLES):
         ax[i].plot(time, avgs[i, :]/(2*HBAR**2))
         ax[i].set_xlabel("t")
@@ -402,7 +403,7 @@ if __name__ == "__main__":
     cmdArgSetter(argv)
     # main()
     # run(8)
-    energyEvolution((3,9), (0.1, 1))
+    energyEvolution((5.5,7.5), (0.2, 0.8))
     # smallOscillationVisualization()
     final_time = time.process_time()
     print(f"This program took {final_time - initial_time}s of CPU time.")
