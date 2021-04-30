@@ -1,4 +1,4 @@
-from nose2.tools import params
+import pytest
 import numpy as np
 from kickedrotor import perturbed_quantum_kicked_rotor as rotor
 from scipy.special import jv
@@ -9,8 +9,8 @@ def setup():
 def teardown():
     print("Tearing down the test...")
 
-@params((0,0), (0,0.1), (0.1,0))
-def test_FloquetOperator(dk=0, dtau=0):
+@pytest.mark.parametrize("dk, dtau", [(0,0), (0,0.1), (0.1,0)])
+def test_FloquetOperator(dk, dtau):
     print(f"Running test for deltak = {dk}, deltatau = {dtau}...    ")
     tau = rotor.TAU + dtau
     k = rotor.K + dk
