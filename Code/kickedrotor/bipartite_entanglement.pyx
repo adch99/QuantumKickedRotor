@@ -28,14 +28,14 @@ cdef extern from "math.h":
     float M_PI
 
 # Scientific Constants
-cdef float HBAR = 1
+cdef float HBAR = 1.5
 cdef float K = 5
 cdef float ALPHA = 0.1
 cdef float OMEGA2 = 0.9
 cdef float OMEGA3 = 1.2
 
 # Program Constants
-cdef int N = 2
+cdef int N = 8
 cdef int DIM = 2 * N + 1
 cdef float EPSILON = 1e-6
 cdef int TIMESTEPS = 5
@@ -72,25 +72,27 @@ def getKickFourierCoeffs(func):
     theta = np.arange(2*DIM) * 2 * np.pi / (2*DIM)
     theta1, theta2, theta3 = np.meshgrid(theta, theta, theta)
     x = func(theta1, theta2, theta3)
-    y = fft.fftshift(fft.fftn(x))
+    y = fft.fftshift(fft.fftn(x, norm="ortho"))
     return y.astype(np.complex64)
 
 cdef float complex complex_exp(float angle) nogil:
     return cos(angle) + I * sin(angle)
 
-# @cython.boundscheck(False)
-# @cython.wraparound(False)
+@cython.boundscheck(False)
+@cython.wraparound(False)
 def getDenseFloquetOperator(float complex[:, :, :] fourier_coeffs):
     """
     Returns the dense version of the floquet operator.
     """
 
-    F = np.zeros((DIM,)*6, dtype=np.complex64)
-    cdef float complex[:, :, :, :, :, :] F_view = F
+    F = np.zeros((DIM**3, DIM**3), dtype=np.complex64)
+    cdef float complex[:, :] F_view = F
 
     cdef int m1, m2, m3, n1, n2, n3
+    cdef int row, col
     cdef float angle
-    cdef float norm = 1/sqrt(2*M_PI)
+    cdef float norm = (DIM / M_PI)**1.5
+    # cdef float norm = 1
     cdef float complex fourier
 
     for m1 in prange(-N, N+1, nogil=True):
@@ -101,7 +103,9 @@ def getDenseFloquetOperator(float complex[:, :, :] fourier_coeffs):
                         for n3 in prange(-N, N+1):
                             angle = (HBAR * m1**2 / 2) + m2 * OMEGA2 + m3 * OMEGA3
                             fourier = fourier_coeffs[m1-n1+2*N, m2-n2+2*N, m3-n3+2*N]
-                            F_view[m1+N, m2+N, m3+N, n1+N, n2+N, n3+N] = complex_exp(angle) * fourier * norm
+                            row = (m3 + N) * DIM**2 + (m2 + N) * DIM + (m1 + N)
+                            col = (n3 + N) * DIM**2 + (m3 + N) * DIM + (n1 + N)
+                            F_view[row, col] = complex_exp(-angle) * fourier * norm
 
     return F
 
@@ -111,9 +115,13 @@ def getFloquetOperator():
     """
     fourier_coeffs = getKickFourierCoeffs(kickFunction)
 
-    F = getDenseFloquetOperator(fourier_coeffs).reshape((DIM**3, DIM**3))
+    F = getDenseFloquetOperator(fourier_coeffs)
+    # F /= np.linalg.det(F)
+    sign, logdet = np.linalg.slogdet(F)
+    print(f"slogdet(F) = {sign} * exp({logdet})")
+    # F *= np.exp(-logdet) / sign
     Fh = np.conjugate(F.T)
-    print("F x Fh:", F @ Fh)
+    print("F x Fh:", F.dot(Fh))
     F[np.abs(F) < EPSILON] = 0
     Fh = np.conjugate(F.T)
     return csr_matrix(F), csc_matrix(Fh)

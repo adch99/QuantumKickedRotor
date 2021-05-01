@@ -5,7 +5,7 @@ ext_modules = [
     Extension("kickedrotor.bipartite_entanglement",
             sources=["kickedrotor/bipartite_entanglement.pyx"],
             libraries=["m"],
-            extra_compile_args=["-fopenmp", "-g"],
+            extra_compile_args=["-fopenmp"],
             extra_link_args=["-fopenmp"])
 ]
 

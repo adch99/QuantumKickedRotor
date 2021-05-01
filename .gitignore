@@ -4,6 +4,13 @@ __pycache__/ # Don't include any pycache dirs
 .ipynb_checkpoints/
 *.pyc
 
+# Ignore all files from Cython as they are
+# not cross-platform
+Code/build
+*.c
+*.so
+
+
 # Ignore all files in the Tracker directory
 Tracker/*
 # Except tex, bib, pdf and pptx files
