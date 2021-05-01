@@ -1,5 +1,13 @@
-from setuptools import setup
+from setuptools import setup, Extension
 from Cython.Build import cythonize
+
+ext_modules = [
+    Extension("kickedrotor.bipartite_entanglement",
+            sources=["kickedrotor/bipartite_entanglement.pyx"],
+            libraries=["m"],
+            extra_compile_args=["-fopenmp", "-g"],
+            extra_link_args=["-fopenmp"])
+]
 
 config = {
     "description": "Calculates bipartite entanglement in quasiperiodic kicked rotor",
@@ -10,7 +18,7 @@ config = {
     "packages": ["kickedrotor"],
     "scripts": [],
     "name": 'Quasiperiodic Kicked Rotor Entanglement',
-    "ext_modules": cythonize("kickedrotor/bipartite_entanglement.pyx"),
+    "ext_modules": cythonize(ext_modules, annotate=True),
     "zip_safe": False,
 }
 
