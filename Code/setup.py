@@ -2,11 +2,11 @@ from setuptools import setup, Extension
 from Cython.Build import cythonize
 
 ext_modules = [
-    Extension("kickedrotor.bipartite_entanglement",
-            sources=["kickedrotor/bipartite_entanglement.pyx"],
+    Extension("kickedrotor.bipartite_entanglement_windows",
+            sources=["kickedrotor/bipartite_entanglement_windows.pyx"],
             libraries=["m"],
-            extra_compile_args=["-fopenmp"],
-            extra_link_args=["-fopenmp"])
+            extra_compile_args=["/openmp"],
+            extra_link_args=["/openmp", "complex"])
 ]
 
 config = {
