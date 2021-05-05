@@ -24,7 +24,7 @@ config = {
     "name": 'Quasiperiodic Kicked Rotor Entanglement',
     "ext_modules": cythonize(ext_modules, annotate=True, gdb_debug=True,
                                 compiler_directives=compiler_directives),
-    "zip_safe": False,
+    "zip_safe": False
 }
 
 setup(**config)
