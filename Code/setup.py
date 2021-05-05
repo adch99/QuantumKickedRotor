@@ -22,7 +22,7 @@ config = {
     "packages": ["kickedrotor"],
     "scripts": [],
     "name": 'Quasiperiodic Kicked Rotor Entanglement',
-    "ext_modules": cythonize(ext_modules, annotate=True,
+    "ext_modules": cythonize(ext_modules, annotate=True, gdb_debug=True,
                                 compiler_directives=compiler_directives),
     "zip_safe": False,
 }

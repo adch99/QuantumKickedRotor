@@ -11,7 +11,7 @@ K = 5
 ALPHA = 0.5
 OMEGA2 = 2 * np.pi * np.sqrt(5)
 OMEGA3 = 2 * np.pi * np.sqrt(13)
-N = 1
+N = 3
 DIM = 2*N + 1
 EPSILON = 1e-6
 

@@ -9,6 +9,7 @@ __pycache__/ # Don't include any pycache dirs
 Code/build
 *.c
 *.so
+Code/cython_debug
 
 
 # Ignore all files in the Tracker directory

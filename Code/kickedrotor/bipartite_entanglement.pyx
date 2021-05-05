@@ -31,16 +31,16 @@ cdef extern from "math.h":
 # Scientific Constants
 cdef float HBAR = 2.89
 cdef float K = 5
-cdef float ALPHA = 0
+cdef float ALPHA = 0.2
 cdef float OMEGA2 = 2 * M_PI * sqrt(5)
 cdef float OMEGA3 = 2 * M_PI * sqrt(13)
 
 # Program Constants
-cdef int N = 10
+cdef int N = 3
 cdef int DIM = 2 * N + 1
 cdef float EPSILON = 1e-6
 cdef int TIMESTEPS = 5
-cdef FSAMPLES = max(32, 2*DIM)
+cdef FSAMPLES = 32
 
 def printMatrix(matrix, name):
     """
@@ -93,7 +93,7 @@ cdef float complex complex_exp(float angle) nogil:
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-def getDenseFloquetOperator(float complex[:, :, :] fourier_coeffs):
+def getDenseFloquetOperator(float complex[:, :, :] fourier_coeffs not None):
     """
     Returns the dense version of the floquet operator.
     """
@@ -102,12 +102,11 @@ def getDenseFloquetOperator(float complex[:, :, :] fourier_coeffs):
     cdef float complex[:, :] F_view = F
 
     cdef int m1, m2, m3, n1, n2, n3
-    cdef int shift = FSAMPLES / 2 + 1
+    cdef int shift = (FSAMPLES / 2) + 1
     cdef int row, col
-    cdef float angle
-    # cdef float norm = 1 /(2 * M_PI)**1.5
-    # cdef float norm = 1
-    cdef float complex fourier
+    m1 = m2 = m3 = n1 = n2 = n3 = row = col = 0
+    cdef float angle = 0.0
+    cdef float complex fourier = 0 + 0*I
 
     for m1 in prange(-N, N+1, nogil=True):
         for m2 in prange(-N, N+1):
@@ -127,24 +126,16 @@ def getFloquetOperator():
     """
     Returns the floquet operator for the 3d quasiperiodic kicked rotor.
     """
-    # assert I == 1j
     fourier_coeffs = getKickFourierCoeffs(kickFunction)
 
-    # assert np.allclose(np.abs(fourier_coeffs - 1), 0)
-    # print(np.max(np.abs(fourier_coeffs - 1)))
     F = getDenseFloquetOperator(fourier_coeffs)
-    # F /= np.linalg.det(F)
     sign, logdet = np.linalg.slogdet(F)
     print(f"slogdet(F) = {sign} * exp({logdet})")
-    # F *= np.exp(-logdet) / sign
-    # Fh = np.conjugate(F.T)
-    # print("F x Fh:", F.dot(Fh))
     Fh = np.conjugate(F.T)
-    with np.printoptions(precision=4, threshold=np.inf, suppress=True, linewidth=120):
-        printMatrix(F.dot(Fh), "F x Fh")
+    # with np.printoptions(precision=4, threshold=np.inf, suppress=True, linewidth=120):
+        # printMatrix(F.dot(Fh), "F x Fh")
     F[np.abs(F) < EPSILON] = 0
     return csr_matrix(F), csr_matrix(Fh)
-    # return sparse_eye(DIM**3, dtype=np.complex64), sparse_eye(DIM**3, dtype=np.complex64)
 
 def evolve(rho, F, Fh):
     """
