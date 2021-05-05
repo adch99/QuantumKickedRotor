@@ -9,6 +9,10 @@ ext_modules = [
             extra_link_args=["-fopenmp"])
 ]
 
+compiler_directives = {
+    "language_level": 3
+}
+
 config = {
     "description": "Calculates bipartite entanglement in quasiperiodic kicked rotor",
     "author": "Aditya Chincholi",
@@ -18,7 +22,8 @@ config = {
     "packages": ["kickedrotor"],
     "scripts": [],
     "name": 'Quasiperiodic Kicked Rotor Entanglement',
-    "ext_modules": cythonize(ext_modules, annotate=True),
+    "ext_modules": cythonize(ext_modules, annotate=True,
+                                compiler_directives=compiler_directives),
     "zip_safe": False
 }
 

@@ -9,6 +9,7 @@ Decisions: We use the momentum basis for all three dimensions. This is because
         resultant expression contains two dirac delta terms.
 """
 
+import sys
 import numpy as np
 import scipy.fft as fft
 from scipy.special import xlogy
@@ -17,17 +18,27 @@ from scipy.sparse import csr_matrix, csc_matrix
 import matplotlib.pyplot as plt
 import cython
 # Scientific Constants
-HBAR = 1
+HBAR = 2.89
 K = 5
-ALPHA = 0.1
-OMEGA2 = 0.9
-OMEGA3 = 1.2
+ALPHA = 0.5
+OMEGA2 = 2 * np.pi * np.sqrt(5)
+OMEGA3 = 2 * np.pi * np.sqrt(13)
 
 # Program Constants
-N = 10
+N = 1
 DIM = 2 * N + 1
 EPSILON = 1e-6
-TIMESTEPS = 1
+TIMESTEPS = 5
+FSAMPLES = max(64, 2*DIM)
+
+def printMatrix(matrix, name):
+    """
+    Prints the given matrix prettily. For debugging purposes.
+    """
+    print(f"{name}:")
+    print("-"*len(name))
+    print(matrix)
+    print()
 
 def kickFunction(theta1, theta2, theta3):
     """
@@ -44,8 +55,8 @@ def getInitialState():
     state1[N] = 1 # State |0>
 
     state2 = np.ones(DIM) / np.sqrt(DIM)
-    state23 = np.tensordot(state2, state2, axes=0)
-    return np.tensordot(state1, state23, axes=0)
+    state23 = np.kron(state2, state2)
+    return np.kron(state1, state23)
 
 def getInitialDensity():
     """
@@ -58,10 +69,10 @@ def getKickFourierCoeffs(func):
     """
     Returns the 3d fourier coefficient matrix of the function kick(t1, t2, t3).
     """
-    theta = np.arange(2*DIM) * 2 * np.pi / (2*DIM)
+    theta = np.arange(FSAMPLES) * 2 * np.pi / FSAMPLES
     theta1, theta2, theta3 = np.meshgrid(theta, theta, theta)
     x = func(theta1, theta2, theta3)
-    y = fft.fftshift(fft.fftn(x))
+    y = fft.fftshift(fft.fftn(x, norm="ortho")) * (2 * np.pi / FSAMPLES)**1.5
     return y.astype(np.complex64)
 
 
@@ -70,10 +81,12 @@ def getDenseFloquetOperator(fourier_coeffs):
     """
     Returns the dense version of the floquet operator.
     """
+    shift = int(FSAMPLES / 2 + 1)
+    norm = 1 / (2 * np.pi)**1.5
     m = np.arange(-N, N+1, dtype=int)
-    m1, n1, m2, n2, m3, n3 = np.meshgrid(*(m,)*6)
-    F = np.exp(-1j * (HBAR * m1**2 / 2) + m2 * OMEGA2 + m3 * OMEGA3) \
-        * fourier_coeffs[m1-n1+2*N, m2-n2+2*N, m3-n3+2*N] / (2 * np.pi)**1.5
+    m1, m2, m3, n1, n2, n3 = np.meshgrid(*(m,)*6)
+    F = np.exp(-1j * (HBAR * n1**2 / 2) + n2 * OMEGA2 + n3 * OMEGA3) \
+        * fourier_coeffs[m1-n1+shift, m2-n2+shift, m3-n3+shift] * norm
     return F
 
 def getFloquetOperator():
@@ -81,11 +94,14 @@ def getFloquetOperator():
     Returns the floquet operator for the 3d quasiperiodic kicked rotor.
     """
     fourier_coeffs = getKickFourierCoeffs(kickFunction)
-
+    plt.semilogy(np.arange(-FSAMPLES/2, FSAMPLES/2), np.abs(fourier_coeffs[2*N, 2*N, :]))
     F = getDenseFloquetOperator(fourier_coeffs).reshape((DIM**3, DIM**3))
+    print("det(F) =", np.abs(np.linalg.det(F)))
     F[np.abs(F) < EPSILON] = 0
+    with np.printoptions(threshold=np.inf, suppress=True, precision=4):
+        printMatrix(F, "F")
     Fh = np.conjugate(F.T)
-    return csr_matrix(F), csc_matrix(Fh)
+    return csr_matrix(F), csr_matrix(Fh)
 
 def evolve(rho, F, Fh):
     """
@@ -98,7 +114,7 @@ def partialTrace(rho):
     Returns partial trace over theta2+theta3 space.
     """
     rho_product = rho.reshape((DIM,)*6)
-    return np.einsum("ijkkll", rho_product) # Einstein Summation Convention
+    return np.einsum("ijkljk", rho_product) # Einstein Summation Convention
 
 def getEntanglementEntropy(rho1):
     """
@@ -125,12 +141,22 @@ def main():
     """
     F, Fh = getFloquetOperator() # F is sparse CSR, Fh is sparse CSC
     rho = getInitialDensity()
+    rho1 = partialTrace(rho)
+    print("Trace of rho:", np.trace(rho))
+    print("Trace of rho1:", np.trace(rho1))
+    print("von Neumann Entropy:", getEntanglementEntropy(rho1))
     entropies = np.empty(TIMESTEPS)
 
+    print("Starting evolution...")
     for t in range(TIMESTEPS):
+        print(f"Iteration {t} starting...")
         rho1 = partialTrace(rho)
-        entropies[t] = getEntanglementEntropy(rho1)
+        print(f"Trace of rho1: {np.trace(rho1)}")
+        entropy = getEntanglementEntropy(rho1)
+        print(f"Calculated von Neumann entropy is: {entropy}")
+        entropies[t] = entropy
         rho = evolve(rho, F, Fh)
+        print()
 
     plotEntropies(entropies)
 
