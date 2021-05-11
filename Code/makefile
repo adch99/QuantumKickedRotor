@@ -5,5 +5,9 @@ clean:
 	rm -rf */*.pyc */*.so */*.c
 	rm -rf build/*
 
+run:
+	compile
+	python bin/run_entanglement.py
+
 all:
 	compile

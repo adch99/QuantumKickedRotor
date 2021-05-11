@@ -11,36 +11,35 @@ Decisions: We use the momentum basis for all three dimensions. This is because
 
 import numpy as np
 import scipy.fft as fft
-from scipy.special import xlogy
+from scipy.special import xlogy, seterr
 from scipy.sparse import csr_matrix, csc_matrix
 from scipy.sparse import eye as sparse_eye
+from scipy.linalg import eigvals
 import matplotlib.pyplot as plt
 from cython.parallel import prange
 cimport cython
 
-from libc.math cimport sqrt
-
-cdef extern from "complex.h":
-    double cos(double x) nogil
-    double sin(double x) nogil
-    float complex I
+from libc.math cimport sqrt, cos, sin, isnan
+from libc.stdio cimport printf
 
 cdef extern from "math.h":
-    float M_PI
+    double M_PI
 
 # Scientific Constants
-cdef float HBAR = 2.89
-cdef float K = 5
-cdef float ALPHA = 0.2
-cdef float OMEGA2 = 2 * M_PI * sqrt(5)
-cdef float OMEGA3 = 2 * M_PI * sqrt(13)
+cdef double HBAR = 2.89
+cdef double K = 5
+cdef double ALPHA = 0.2
+cdef double OMEGA2 = 2 * M_PI * sqrt(5)
+cdef double OMEGA3 = 2 * M_PI * sqrt(13)
+cdef double complex I = 1j
 
 # Program Constants
-cdef int N = 3
+cdef int N = 8
 cdef int DIM = 2 * N + 1
-cdef float EPSILON = 1e-6
-cdef int TIMESTEPS = 5
+cdef double EPSILON = 1e-6
+cdef int TIMESTEPS = 10
 cdef FSAMPLES = 32
+DTYPE = np.complex128
 
 def printMatrix(matrix, name):
     """
@@ -51,23 +50,31 @@ def printMatrix(matrix, name):
     print(matrix)
     print()
 
+def printNaNInf(array, name):
+    """
+    Prints the number and locations in given array where there
+    are NaNs and infs.
+    """
+    nan_list = np.isnan(array).nonzero()
+    inf_list = np.isinf(array).nonzero()
+    print(f"{name} has {nan_list[0].shape[0]} NaNs at {nan_list}")
+    print(f"{name} has {inf_list[0].shape[0]} Infs at {inf_list}")
 
 def kickFunction(theta1, theta2, theta3):
     """
     Returns the kick part of floquet operator.
     """
-    # quasikick = (1 + ALPHA * np.cos(theta2) * np.cos(theta3))
-    # return np.exp(-1j * K * np.cos(theta1) * quasikick / HBAR)
-    return np.zeros(theta1.shape)
+    quasikick = (1 + ALPHA * np.cos(theta2) * np.cos(theta3))
+    return np.exp(-1j * K * np.cos(theta1) * quasikick / HBAR)
 
 def getInitialState():
     """
     Returns the initial state as tensor product of the 3 momentum spaces.
     """
-    state1 = np.zeros(DIM)
+    state1 = np.zeros(DIM, dtype=DTYPE)
     state1[N] = 1 # State |0>
 
-    state2 = np.ones(DIM) / np.sqrt(DIM)
+    state2 = np.ones(DIM, dtype=DTYPE) / np.sqrt(DIM)
     state23 = np.kron(state2, state2)
     return np.kron(state1, state23)
 
@@ -86,27 +93,31 @@ def getKickFourierCoeffs(func):
     theta1, theta2, theta3 = np.meshgrid(theta, theta, theta)
     x = func(theta1, theta2, theta3)
     y = fft.fftshift(fft.fftn(x, norm="forward"))
-    return y.astype(np.complex64)
+    return y.astype(DTYPE)
 
-cdef float complex complex_exp(float angle) nogil:
-    return cos(angle) + I * sin(angle)
+cdef double complex complex_exp(double angle) nogil:
+    return <double> cos(angle) + I * <double> sin(angle)
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-def getDenseFloquetOperator(float complex[:, :, :] fourier_coeffs not None):
+def getDenseFloquetOperator(fourier_coeffs):
     """
     Returns the dense version of the floquet operator.
     """
 
-    F = np.zeros((DIM**3, DIM**3), dtype=np.complex64)
-    cdef float complex[:, :] F_view = F
+    F = np.zeros((DIM**3, DIM**3), dtype=DTYPE)
+    cdef double complex[:, :] F_view = F
+    cdef double complex[:, :, :] fourier_view = fourier_coeffs
 
     cdef int m1, m2, m3, n1, n2, n3
-    cdef int shift = (FSAMPLES / 2) + 1
+    cdef int shift = FSAMPLES / 2
     cdef int row, col
-    m1 = m2 = m3 = n1 = n2 = n3 = row = col = 0
-    cdef float angle = 0.0
-    cdef float complex fourier = 0 + 0*I
+    # m1 = m2 = m3 = n1 = n2 = n3 = row = col = 0
+    cdef double angle = 0.0
+    cdef double complex fourier = 0 + 0*I
+    cdef double complex phase
+
+    cdef int DIMSQ = DIM**2
 
     for m1 in prange(-N, N+1, nogil=True):
         for m2 in prange(-N, N+1):
@@ -115,26 +126,34 @@ def getDenseFloquetOperator(float complex[:, :, :] fourier_coeffs not None):
                     for n2 in prange(-N, N+1):
                         for n3 in prange(-N, N+1):
                             angle = (HBAR / 2) * n1**2 + n2 * OMEGA2 + n3 * OMEGA3
-                            fourier = fourier_coeffs[m1-n1+shift, m2-n2+shift, m3-n3+shift]
-                            row = ((m1 + N) * (DIM**2)) + ((m2 + N) * DIM) + (m3 + N)
-                            col = ((n1 + N) * (DIM**2)) + ((m3 + N) * DIM) + (n3 + N)
-                            F_view[row, col] = complex_exp(-angle) * fourier
+                            phase = complex_exp(-angle)
+                            fourier = fourier_view[m3-n3+shift, m1-n1+shift, m2-n2+shift]
+                            row = (m1 + N) * DIMSQ + (m2 + N) * DIM + (m3 + N)
+                            col = (n1 + N) * DIMSQ + (n2 + N) * DIM + (n3 + N)
+                            F_view[row, col] = phase * fourier
 
     return F
+
 
 def getFloquetOperator():
     """
     Returns the floquet operator for the 3d quasiperiodic kicked rotor.
     """
     fourier_coeffs = getKickFourierCoeffs(kickFunction)
+    # fourier_coeffs[np.abs(fourier_coeffs) < EPSILON] = 0
+    # printNaNInf(fourier_coeffs, "fourier_coeffs")
 
     F = getDenseFloquetOperator(fourier_coeffs)
-    sign, logdet = np.linalg.slogdet(F)
-    print(f"slogdet(F) = {sign} * exp({logdet})")
+    # printNaNInf(F, "F")
+    F.real[np.abs(F.real) < EPSILON] = 0
+    F.imag[np.abs(F.imag) < EPSILON] = 0
+    # np.nan_to_num(F, copy=False, nan=0)
+    # printNaNInf(F, "F")
+    # printMatrix(F, "F")
+    # sign, slogdet = np.linalg.slogdet(F)
+    # print(f"det(F) = {sign} x exp({slogdet})")
+    # print(f"Eigenvalues of F are {np.sort(np.abs(eigvals(F)))}")
     Fh = np.conjugate(F.T)
-    # with np.printoptions(precision=4, threshold=np.inf, suppress=True, linewidth=120):
-        # printMatrix(F.dot(Fh), "F x Fh")
-    F[np.abs(F) < EPSILON] = 0
     return csr_matrix(F), csr_matrix(Fh)
 
 def evolve(rho, F, Fh):
@@ -157,45 +176,114 @@ def getEntanglementEntropy(rho1):
     eigvals = np.linalg.eigvals(rho1)
     return np.sum(-xlogy(eigvals, eigvals))
 
-def plotEntropies(entropies):
+def getMomentumDistribution(rho1):
+    """
+    Returns the probability distribution of the momentum p1.
+    """
+    return np.diag(rho1)
+
+def getAvgMomentum(rho1):
+    """
+    Returns the ensemble average of the momentum p1.
+    """
+    return np.sum(np.diag(rho1) * np.arange(-N, N+1))
+
+def plotEntropies(ax, entropies):
     """
     Plots the entanglement entropies as a function of time.
     """
-    fig, ax = plt.subplots(nrows=1, ncols=1)
-
     t = np.arange(1, TIMESTEPS+1)
+
     ax.semilogy(t, entropies, marker="o")
     ax.set_xlabel("Time (t)")
     ax.set_ylabel(r"Entanglement Entropy ($\sigma$)")
+
+def plotMomentumDistribution(ax, momentum_dist):
+    """
+    Plots the distribution of the momentum p1 at the end
+    of the simulation.
+    """
+    p = np.arange(-N, N+1)
+    ax.plot(p, momentum_dist)
+    # ax.set_yscale("symlog")
+    ax.set_xlabel(r"$m_1$")
+    ax.set_ylabel(r"$P(p_1 = m_1 \hbar)$")
+
+def plotMomentumAvg(ax, momentum_avgs):
+    """
+    Plots the average momentum p1 with time.
+    """
+    t = np.arange(1, TIMESTEPS+1)
+    ax.semilogy(t, momentum_avgs)
+    ax.set_xlabel("t")
+    ax.set_ylabel(r"$[m_1]$")
+
+def plotter(entropies, momentum_avgs, momentum_dist):
+    """
+    Plots all the computed quantities, namely entanglement
+    entropy, average momentum p1 and distribution of the
+    momentum p1 at the end.
+    """
+    fig, ax = plt.subplots(nrows=2, ncols=2)
+
+    plotEntropies(ax[0, 0], entropies)
+    plotMomentumDistribution(ax[0, 1], momentum_dist)
+    plotMomentumAvg(ax[1, 0], momentum_avgs)
+
+    plt.tight_layout()
     plt.savefig("plots/entanglement_entropy.png")
+
 
 def main():
     """
     The main function which handles the entire execution sequence.
     """
+    np.seterr(all="raise")
+    seterr(all="raise") # scipy.special.seterr
+
     print("Starting to compute F...")
     F, Fh = getFloquetOperator() # F is sparse CSR, Fh is sparse CSC
-    # print(f"F has {F.count_nonzero()} non-zero elements out of {DIM**6}")
+
     print("Floquet operator computation over. Density operator starting...")
     rho = getInitialDensity()
     rho1 = partialTrace(rho)
+
     print("Trace of rho:", np.trace(rho))
     print("Trace of rho1:", np.trace(rho1))
     print("von Neumann Entropy:", getEntanglementEntropy(rho1))
+    print()
 
+    momentum_avgs = np.empty(TIMESTEPS)
     entropies = np.empty(TIMESTEPS)
     print("Starting evolution...")
+
     for t in range(TIMESTEPS):
         print(f"Iteration {t} starting...")
+
         rho1 = partialTrace(rho)
+        # np.nan_to_num(rho1, copy=False, nan=0)
+
+        printNaNInf(rho1, "rho1")
+
         print(f"Trace of rho1: {np.trace(rho1)}")
+
+
+        printNaNInf(rho, "rho")
+
         entropy = getEntanglementEntropy(rho1)
         print(f"Calculated von Neumann entropy is: {entropy}")
-        entropies[t] = entropy
+        entropies[t] = entropy.real
+        momentum_avgs[t] = getAvgMomentum(rho1).real
+
         rho = evolve(rho, F, Fh)
+        rho /= np.trace(rho)
+        # np.nan_to_num(rho, copy=False, nan=0)
+
         print()
 
-    plotEntropies(entropies)
+    rho1 = partialTrace(rho)
+    momentum_dist = getMomentumDistribution(rho1)
+    plotter(entropies, momentum_avgs, momentum_dist)
 
 if __name__ == "__main__":
     main()
