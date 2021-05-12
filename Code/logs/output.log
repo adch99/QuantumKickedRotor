@@ -1,0 +1,127 @@
+Starting to compute F...
+Floquet operator computation over. Density operator starting...
+Trace of rho: (1.0000000000000002+0j)
+Trace of rho1: (1.0000000000000075+0j)
+von Neumann Entropy: (-7.549516567451093e-15+0j)
+
+Starting evolution...
+Iteration 0 starting...
+Trace of rho1: (1.0000000000000075+0j)
+rho has 0 NaNs at (array([], dtype=int64), array([], dtype=int64))
+rho has 0 Infs at (array([], dtype=int64), array([], dtype=int64))
+Calculated von Neumann entropy is: (-7.549516567451093e-15+0j)
+
+Iteration 1 starting...
+Trace of rho1: (0.9999999999999997+6.548161810916602e-33j)
+rho has 0 NaNs at (array([], dtype=int64), array([], dtype=int64))
+rho has 0 Infs at (array([], dtype=int64), array([], dtype=int64))
+Calculated von Neumann entropy is: (0.03609580549127234+3.1612087135291094e-16j)
+
+Iteration 2 starting...
+Trace of rho1: (1.0000000000000002+3.944304526105059e-31j)
+rho has 0 NaNs at (array([], dtype=int64), array([], dtype=int64))
+rho has 0 Infs at (array([], dtype=int64), array([], dtype=int64))
+Calculated von Neumann entropy is: (1.5831225993485365-1.0512802756969937e-14j)
+
+Iteration 3 starting...
+Trace of rho1: (0.9999999999999998+1.0538688655686955e-30j)
+rho has 0 NaNs at (array([], dtype=int64), array([], dtype=int64))
+rho has 0 Infs at (array([], dtype=int64), array([], dtype=int64))
+Calculated von Neumann entropy is: (0.11865352107230032-1.5756778243450588e-16j)
+
+Iteration 4 starting...
+Trace of rho1: (0.9999999999999996-1.6640034719505718e-31j)
+rho has 0 NaNs at (array([], dtype=int64), array([], dtype=int64))
+rho has 0 Infs at (array([], dtype=int64), array([], dtype=int64))
+Calculated von Neumann entropy is: (0.47156399923895587-8.268789513262504e-15j)
+
+Iteration 5 starting...
+Trace of rho1: (0.9999999999999998-2.0029671421627253e-30j)
+rho has 0 NaNs at (array([], dtype=int64), array([], dtype=int64))
+rho has 0 Infs at (array([], dtype=int64), array([], dtype=int64))
+Calculated von Neumann entropy is: (0.13420130150509768+3.3173162478709894e-16j)
+
+Iteration 6 starting...
+Trace of rho1: (0.9999999999999993-1.735493991486226e-29j)
+rho has 0 NaNs at (array([], dtype=int64), array([], dtype=int64))
+rho has 0 Infs at (array([], dtype=int64), array([], dtype=int64))
+Calculated von Neumann entropy is: (1.2180926956979914-7.37558537519609e-14j)
+
+Iteration 7 starting...
+Trace of rho1: (1-1.1832913578315177e-30j)
+rho has 0 NaNs at (array([], dtype=int64), array([], dtype=int64))
+rho has 0 Infs at (array([], dtype=int64), array([], dtype=int64))
+Calculated von Neumann entropy is: (0.1432241292582653-7.312592269687368e-16j)
+
+Iteration 8 starting...
+Trace of rho1: (0.9999999999999999+1.6023737137301802e-30j)
+rho has 0 NaNs at (array([], dtype=int64), array([], dtype=int64))
+rho has 0 Infs at (array([], dtype=int64), array([], dtype=int64))
+Calculated von Neumann entropy is: (0.6875904421027289-1.0611350263085311e-15j)
+
+Iteration 9 starting...
+Trace of rho1: (1-6.656013887802287e-31j)
+rho has 0 NaNs at (array([], dtype=int64), array([], dtype=int64))
+rho has 0 Infs at (array([], dtype=int64), array([], dtype=int64))
+Calculated von Neumann entropy is: (0.12928694453652623-1.0943451730420001e-15j)
+
+Iteration 10 starting...
+Trace of rho1: (0.9999999999999994+9.860761315262648e-31j)
+rho has 0 NaNs at (array([], dtype=int64), array([], dtype=int64))
+rho has 0 Infs at (array([], dtype=int64), array([], dtype=int64))
+Calculated von Neumann entropy is: (0.7558719820773624-3.396874812369871e-14j)
+
+Iteration 11 starting...
+Trace of rho1: (0.9999999999999999-2.1200636827814692e-30j)
+rho has 0 NaNs at (array([], dtype=int64), array([], dtype=int64))
+rho has 0 Infs at (array([], dtype=int64), array([], dtype=int64))
+Calculated von Neumann entropy is: (0.17716913558563838+3.029303909400609e-15j)
+
+Iteration 12 starting...
+Trace of rho1: (0.9999999999999996+6.606710081225974e-30j)
+rho has 0 NaNs at (array([], dtype=int64), array([], dtype=int64))
+rho has 0 Infs at (array([], dtype=int64), array([], dtype=int64))
+Calculated von Neumann entropy is: (0.6556302744923969-1.6238400627173883e-15j)
+
+Iteration 13 starting...
+Trace of rho1: (0.9999999999999998+1.8612186982558247e-30j)
+rho has 0 NaNs at (array([], dtype=int64), array([], dtype=int64))
+rho has 0 Infs at (array([], dtype=int64), array([], dtype=int64))
+Calculated von Neumann entropy is: (0.11607322743518453+1.8090600463233992e-15j)
+
+Iteration 14 starting...
+Trace of rho1: (1+6.570502598271494e-30j)
+rho has 0 NaNs at (array([], dtype=int64), array([], dtype=int64))
+rho has 0 Infs at (array([], dtype=int64), array([], dtype=int64))
+Calculated von Neumann entropy is: (0.7112140868828289+1.808467895566611e-15j)
+
+Iteration 15 starting...
+Trace of rho1: (0.9999999999999998-8.135128085091684e-31j)
+rho has 0 NaNs at (array([], dtype=int64), array([], dtype=int64))
+rho has 0 Infs at (array([], dtype=int64), array([], dtype=int64))
+Calculated von Neumann entropy is: (0.16048591835065487+4.810253205229747e-15j)
+
+Iteration 16 starting...
+Trace of rho1: (0.9999999999999999-2.6993834100531498e-30j)
+rho has 0 NaNs at (array([], dtype=int64), array([], dtype=int64))
+rho has 0 Infs at (array([], dtype=int64), array([], dtype=int64))
+Calculated von Neumann entropy is: (0.6534805849458926+5.012518262078063e-15j)
+
+Iteration 17 starting...
+Trace of rho1: (0.9999999999999996-7.888609052210118e-31j)
+rho has 0 NaNs at (array([], dtype=int64), array([], dtype=int64))
+rho has 0 Infs at (array([], dtype=int64), array([], dtype=int64))
+Calculated von Neumann entropy is: (0.1623434143402976+1.007632724355432e-15j)
+
+Iteration 18 starting...
+Trace of rho1: (0.9999999999999998+3.944304526105059e-31j)
+rho has 0 NaNs at (array([], dtype=int64), array([], dtype=int64))
+rho has 0 Infs at (array([], dtype=int64), array([], dtype=int64))
+Calculated von Neumann entropy is: (0.6886161654041036+8.792850935456547e-15j)
+
+Iteration 19 starting...
+Trace of rho1: (0.9999999999999999-6.409494854920721e-31j)
+rho has 0 NaNs at (array([], dtype=int64), array([], dtype=int64))
+rho has 0 Infs at (array([], dtype=int64), array([], dtype=int64))
+Calculated von Neumann entropy is: (0.1506122978413371+1.6028137398956978e-15j)
+

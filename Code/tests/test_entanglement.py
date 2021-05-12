@@ -3,15 +3,16 @@ import scipy.fft as fft
 from scipy.sparse import csr_matrix
 from scipy.sparse.linalg import eigs as speigs
 from scipy.special import jv
+from scipy.integrate import nquad
 import matplotlib.pyplot as plt
 from kickedrotor import bipartite_entanglement as rotor
 
 HBAR = 2.89
 K = 5
-ALPHA = 0.5
+ALPHA = 0.2
 OMEGA2 = 2 * np.pi * np.sqrt(5)
 OMEGA3 = 2 * np.pi * np.sqrt(13)
-N = 3
+N = 8
 DIM = 2*N + 1
 EPSILON = 1e-6
 
@@ -68,6 +69,36 @@ def notest_fourierBessel():
     expected = 2 * np.pi * (1j)**(-p) * jv(-p, -K / HBAR)
 
     np.testing.assert_allclose(fourier_sum, expected)
+
+def test_floquet():
+    F, Fh = rotor.getFloquetOperator()
+    del Fh
+    m1, m2, m3 = (1, 3, 0)
+    n1, n2, n3 = (-1, 2, 1)
+    q1, q2, q3 = (m1-n1, m2-n2, m3-n3)
+    m = (m1 + N) * DIM**2 + (m2 + N) * DIM + (m3 + N)
+    n = (n1 + N) * DIM**2 + (n2 + N) * DIM + (n3 + N)
+
+    def integrand_real(t1, t2, t3):
+        kick = -(K / HBAR) * np.cos(t1) * (1 + ALPHA * np.cos(t2) * np.cos(t3))
+        kernel = -(q1*t1 + q2*t2 + q3*t3)
+        return np.cos(kick + kernel)
+
+    def integrand_imag(t1, t2, t3):
+        kick = -(K / HBAR) * np.cos(t1) * (1 + ALPHA * np.cos(t2) * np.cos(t3))
+        kernel = -(q1*t1 + q2*t2 + q3*t3)
+        return np.sin(kick + kernel)
+
+    ranges = [(0, 2*np.pi), (0, 2*np.pi), (0, 2*np.pi)]
+
+    result_real, err_real = nquad(integrand_real, ranges)
+    result_imag, err_imag = nquad(integrand_imag, ranges)
+    result = (result_real + 1j*result_imag) / (2 * np.pi)**3
+    result *= np.exp(-1j * (HBAR * n1**2 / 2 + n2*OMEGA2 + n3*OMEGA3))
+    err = (err_real**2 + err_imag**2)**0.5
+
+    np.testing.assert_allclose(F[m, n], result, atol=EPSILON/2, rtol=EPSILON/2)
+
 
 # def test_complexExp():
 #     x = np.linspace(0, 2*np.pi, 100)

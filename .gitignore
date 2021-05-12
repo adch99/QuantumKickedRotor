@@ -19,3 +19,4 @@ Tracker/*
 !Tracker/*.bib
 !Tracker/*.pdf
 !Tracker/*.pptx
+!Tracker/*.png
