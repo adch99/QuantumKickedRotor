@@ -6,8 +6,7 @@ clean:
 	rm -rf build/*
 
 run:
-	compile
-	python bin/run_entanglement.py
+	python bin/run_entanglement.py > logs/output.log 2> logs/errors.log
 
 all:
 	compile

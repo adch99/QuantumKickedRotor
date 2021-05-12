@@ -34,10 +34,10 @@ cdef double OMEGA3 = 2 * M_PI * sqrt(13)
 cdef double complex I = 1j
 
 # Program Constants
-cdef int N = 8
+cdef int N = 10
 cdef int DIM = 2 * N + 1
 cdef double EPSILON = 1e-6
-cdef int TIMESTEPS = 10
+cdef int TIMESTEPS = 20
 cdef FSAMPLES = 32
 DTYPE = np.complex128
 
@@ -182,11 +182,11 @@ def getMomentumDistribution(rho1):
     """
     return np.diag(rho1)
 
-def getAvgMomentum(rho1):
+def getAvgMomentumSq(rho1):
     """
-    Returns the ensemble average of the momentum p1.
+    Returns the ensemble average of the momentum p1^2.
     """
-    return np.sum(np.diag(rho1) * np.arange(-N, N+1))
+    return np.sum(np.diag(rho1) * np.arange(-N, N+1)**2)
 
 def plotEntropies(ax, entropies):
     """
@@ -204,21 +204,20 @@ def plotMomentumDistribution(ax, momentum_dist):
     of the simulation.
     """
     p = np.arange(-N, N+1)
-    ax.plot(p, momentum_dist)
-    # ax.set_yscale("symlog")
+    ax.semilogy(p, momentum_dist, marker="o")
     ax.set_xlabel(r"$m_1$")
     ax.set_ylabel(r"$P(p_1 = m_1 \hbar)$")
 
-def plotMomentumAvg(ax, momentum_avgs):
+def plotMomentumSqAvg(ax, momentum_sq_avgs):
     """
-    Plots the average momentum p1 with time.
+    Plots the average momentum p1^2 with time.
     """
     t = np.arange(1, TIMESTEPS+1)
-    ax.semilogy(t, momentum_avgs)
+    ax.plot(t, momentum_sq_avgs, marker="o")
     ax.set_xlabel("t")
-    ax.set_ylabel(r"$[m_1]$")
+    ax.set_ylabel(r"$[m_1^2]$")
 
-def plotter(entropies, momentum_avgs, momentum_dist):
+def plotter(entropies, momentum_sq_avgs, momentum_dist):
     """
     Plots all the computed quantities, namely entanglement
     entropy, average momentum p1 and distribution of the
@@ -228,7 +227,7 @@ def plotter(entropies, momentum_avgs, momentum_dist):
 
     plotEntropies(ax[0, 0], entropies)
     plotMomentumDistribution(ax[0, 1], momentum_dist)
-    plotMomentumAvg(ax[1, 0], momentum_avgs)
+    plotMomentumSqAvg(ax[1, 0], momentum_sq_avgs)
 
     plt.tight_layout()
     plt.savefig("plots/entanglement_entropy.png")
@@ -253,7 +252,7 @@ def main():
     print("von Neumann Entropy:", getEntanglementEntropy(rho1))
     print()
 
-    momentum_avgs = np.empty(TIMESTEPS)
+    momentum_sq_avgs = np.empty(TIMESTEPS)
     entropies = np.empty(TIMESTEPS)
     print("Starting evolution...")
 
@@ -263,7 +262,7 @@ def main():
         rho1 = partialTrace(rho)
         # np.nan_to_num(rho1, copy=False, nan=0)
 
-        printNaNInf(rho1, "rho1")
+        # printNaNInf(rho1, "rho1")
 
         print(f"Trace of rho1: {np.trace(rho1)}")
 
@@ -273,7 +272,7 @@ def main():
         entropy = getEntanglementEntropy(rho1)
         print(f"Calculated von Neumann entropy is: {entropy}")
         entropies[t] = entropy.real
-        momentum_avgs[t] = getAvgMomentum(rho1).real
+        momentum_sq_avgs[t] = getAvgMomentumSq(rho1).real
 
         rho = evolve(rho, F, Fh)
         rho /= np.trace(rho)
@@ -283,7 +282,7 @@ def main():
 
     rho1 = partialTrace(rho)
     momentum_dist = getMomentumDistribution(rho1)
-    plotter(entropies, momentum_avgs, momentum_dist)
+    plotter(entropies, momentum_sq_avgs, momentum_dist)
 
 if __name__ == "__main__":
     main()
