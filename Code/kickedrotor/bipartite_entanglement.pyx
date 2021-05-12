@@ -56,9 +56,9 @@ def kickFunction(theta1, theta2, theta3):
     """
     Returns the kick part of floquet operator.
     """
-    # quasikick = (1 + ALPHA * np.cos(theta2) * np.cos(theta3))
-    # return np.exp(-1j * K * np.cos(theta1) * quasikick / HBAR)
-    return np.zeros(theta1.shape)
+    quasikick = (1 + ALPHA * np.cos(theta2) * np.cos(theta3))
+    return np.exp(-1j * K * np.cos(theta1) * quasikick / HBAR)
+    # return np.zeros(theta1.shape)
 
 def getInitialState():
     """

@@ -248,11 +248,32 @@ $\Delta t$ is the width of the kick pulse in a physical setting.}
 
 \subsection{Floquet Expression Derivation}
 
-\begin{align}
-    F &= e^{-i K cos\theta_1 (1 + \epsilon cos\theta2 cos\theta_3) / \hbar}
-    e^{-i (p_1^2 / 2 + p_2 \omega_2 + p_3 \omega_3)/\hbar}
-
-\end{align}
+\begin{align*}
+    F_{3d} &= e^{-i K cos\theta_1 (1 + \alpha cos\theta_2 cos\theta_3) / \hbar}
+    e^{-i (p_1^2 / 2 + p_2 \omega_2 + p_3 \omega_3)/\hbar} \\
+    \bra{\mathbf{m}} F_{3d} \ket{\mathbf{n}} &=
+    \bra{m_1, m_2, m_3}F_{3d}\ket{n_1, n_2, n_3} \\
+    &= \bra{\mathbf{m}}
+    e^{-i K cos\theta_1 (1 + \alpha cos\theta_2 cos\theta_3) / \hbar}
+    \ket{\mathbf{n}} e^{-i (\hbar n_1^2 / 2 + n_2 \omega_2 + n_3 \omega_3)} \\
+    &= \bra{\mathbf{m}} \int_{[0,2\pi]^3} d^3\theta \
+    e^{-i K cos\theta_1 (1 + \alpha cos\theta_2 cos\theta_3) / \hbar}
+    \ket{\boldsymbol{\theta}}\braket{\boldsymbol{\theta}|\mathbf{n}}
+    e^{-i (\hbar n_1^2 / 2 + n_2 \omega_2 + n_3 \omega_3)} \\
+    &= \int_{[0,2\pi]^3} d^3\theta \ \braket{\mathbf{m}|\boldsymbol{\theta}}
+    e^{-i K cos\theta_1 (1 + \alpha cos\theta_2 cos\theta_3) / \hbar}
+    \braket{\boldsymbol{\theta}|\mathbf{n}}
+    e^{-i (\hbar n_1^2 / 2 + n_2 \omega_2 + n_3 \omega_3)} \\
+    &= e^{-i (\hbar n_1^2 / 2 + n_2 \omega_2 + n_3 \omega_3)}
+    \frac{1}{(2\pi)^3} \int_{[0,2\pi]^3} d^3\theta \
+    e^{-i(\mathbf{m} - \mathbf{n})\cdot \boldsymbol{\theta}}
+    e^{-i K cos\theta_1 (1 + \alpha cos\theta_2 cos\theta_3) / \hbar}\\
+    &\approx e^{-i (\hbar n_1^2 / 2 + n_2 \omega_2 + n_3 \omega_3)}
+    DFT_N(f(\boldsymbol{\theta}))[\mathbf{m} - \mathbf{n}]\\
+    \text{where }
+    f(\boldsymbol{\theta}) &=
+    e^{-i K cos\theta_1 (1 + \alpha cos\theta_2 cos\theta_3) / \hbar}
+\end{align*}
 
 \nocite{*}
 \printbibliography
