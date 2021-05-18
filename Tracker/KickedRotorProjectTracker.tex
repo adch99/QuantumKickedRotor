@@ -5,7 +5,10 @@
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{ulem}
+\usepackage{graphicx}
+\usepackage{float}
 \usepackage{biblatex}
+\graphicspath{{./img/}}
 \addbibresource{Readings.bib}
 
 %opening
@@ -239,7 +242,7 @@ $\Delta t$ is the width of the kick pulse in a physical setting.}
     \item Program and calculate the bipartite entanglement
     by simulating the 3d kicked rotor.
 
-    \item Read and understand the paper on "Multifractility ..."
+    \item Read and understand the paper on ``Multifractility ..."
     and compare with my results.
 
     \item Read and work out the critical point dynamics from
@@ -274,6 +277,96 @@ $\Delta t$ is the width of the kick pulse in a physical setting.}
     f(\boldsymbol{\theta}) &=
     e^{-i K cos\theta_1 (1 + \alpha cos\theta_2 cos\theta_3) / \hbar}
 \end{align*}
+
+\newpage
+
+\section{Bipartite Entanglement Simulation}
+\subsection{Results}
+
+\begin{figure}[h]
+\includegraphics[width=\linewidth]{entanglement_entropy}
+\centering
+\end{figure}
+
+\begin{enumerate}
+    \item Bipartite entanglement entropy between the two subspaces
+    $\mathcal{H}_1$ and $\mathcal{H}_{2,3}$ is non-zero and is roughly
+    $O(10^{-1})$. It seems to saturate or at least oscillate about a
+    mean. But there are issues.
+
+    \item The momentum $p_1$ distribution looks sort of correct. But it
+    is clear that we need more basis states based on the rise at the
+    edges of the distribution.
+
+    \item The momentum square $p_1^2$ is increasing properly like a
+    diffusive regime and then saturating out due to lack of basis states.
+\end{enumerate}
+
+\subsection{Issues}
+
+\begin{figure}[h]
+\includegraphics[width=\linewidth]{floquet_spectrum_21}
+\centering
+\caption{This plot was made from 1331 eigenvalues. Also it should be
+number of values not density.}
+\end{figure}
+
+\begin{figure}[h]
+\includegraphics[width=\linewidth]{quasiperiodic_floquet_eigenval_dist_10}
+\centering
+\end{figure}
+
+\begin{enumerate}
+    \item First of all, the matrix is not unitary. It's eigenvalue
+    spectrum is not composed of phases. For a $21^3 \times 21^3$
+    case, 1331 eigenvalues were calculated for the matrix and they
+    had a decent amount of spread. Calculating the determinant,
+    through logdet, also yields very small quantities $e^{-O(100)}$.
+
+    But this is just with the dense form of the matrix. In order
+    to decrease memory consumption, we use sparse matrices. So we zero
+    out any terms with absolute value less than $10^{-6}$. Should be a
+    reasonable thing to do. Apparently not, because the eigenvalues
+    amplitudes shot up to 10-12 when I tried finding eigenvalues of the
+    sparse matrix. But I could not repeat this computation.
+    Every time I tried again, ARPACK (used by scipy) said all the
+    eigenvectors failed to converge.
+
+    It is notable that this is happening despite various tests
+    telling me that the floquet operator expression is correct. I have
+    run tests wherein one of the elements is computed through quad instead
+    of the fft and it matches it to a good degree.
+
+    \item The other issue, due to the first one, is that the trace of the
+    density matrix is not conserved to be unity. For lower dimensions, the
+    difference is very small, it goes from 0.99 to 0.97 to 0.89 to 0.6.
+    In this case, one can possibly justify a simple correction to divide
+    $\rho$ by the $tr(\rho)$ or by $tr(\rho_1)$. But this is harder for
+    higher dimensions because the fluctuations tend to increase. I have to
+    correct by dividing by $tr(\rho)$ here, $tr(\rho_1)$ also fails here.
+
+    \item The calculation of the floquet matrix has been parallelized,
+    and it's sparse form takes relatively low amount of space in memory.
+    But the density matrices are, well, dense. They cannot be sparse.
+    So the evolution takes place with a Sparse $\times$ Dense $\times$
+    Sparse dot product operation. But sparse linalg is single-threaded.
+    And that's the case in pretty much all libraries available across
+    major languages (MATLAB included). So the evolution is slow. And
+    by slow I mean quite slow. It took over an hour to do 20 timesteps
+    in the 21 basis case.
+
+    \item I cannot afford to use dense forms of the floquet operator on my
+    system. The system already uses 3.7 GB of RAM and ~2 GB of swap
+    space on my system with 21 basis states for each subspace. When
+    I tried increasing this to 24 basis states per subspace, the
+    program segfaulted. So having a dense floquet operator is not an
+    option on my system at least.
+
+    I have also tried using a smaller datatype (complex32 over complex64),
+    but that started giving me underflow errors and NaNs. I tried mitigating
+    them, but eventually I had to move to the larger datatype as the processing
+    became very problematic.
+\end{enumerate}
 
 \nocite{*}
 \printbibliography
