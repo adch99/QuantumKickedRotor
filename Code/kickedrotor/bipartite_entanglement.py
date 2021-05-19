@@ -10,36 +10,13 @@ Decisions: We use the momentum basis for all three dimensions. This is because
 """
 
 import numpy as np
-import scipy.fft as fft
 from scipy.special import xlogy, seterr
 from scipy.sparse import csr_matrix, csc_matrix
 from scipy.sparse import eye as sparse_eye
 from scipy.linalg import eigvals
 import matplotlib.pyplot as plt
-from cython.parallel import prange
-cimport cython
-
-from libc.math cimport sqrt, cos, sin, isnan
-from libc.stdio cimport printf
-
-cdef extern from "math.h":
-    double M_PI
-
-# Scientific Constants
-cdef double HBAR = 2.89
-cdef double K = 5
-cdef double ALPHA = 0.2
-cdef double OMEGA2 = 2 * M_PI * sqrt(5)
-cdef double OMEGA3 = 2 * M_PI * sqrt(13)
-cdef double complex I = 1j
-
-# Program Constants
-cdef int N = 10
-cdef int DIM = 2 * N + 1
-cdef double EPSILON = 1e-6
-cdef int TIMESTEPS = 20
-cdef FSAMPLES = 32
-DTYPE = np.complex128
+import kickedrotor.quasiperiodic_rotor_3d as floquet
+from kickedrotor.params import *
 
 def printMatrix(matrix, name):
     """
@@ -60,13 +37,6 @@ def printNaNInf(array, name):
     print(f"{name} has {nan_list[0].shape[0]} NaNs at {nan_list}")
     print(f"{name} has {inf_list[0].shape[0]} Infs at {inf_list}")
 
-def kickFunction(theta1, theta2, theta3):
-    """
-    Returns the kick part of floquet operator.
-    """
-    quasikick = (1 + ALPHA * np.cos(theta2) * np.cos(theta3))
-    return np.exp(-1j * K * np.cos(theta1) * quasikick / HBAR)
-
 def getInitialState():
     """
     Returns the initial state as tensor product of the 3 momentum spaces.
@@ -85,74 +55,13 @@ def getInitialDensity():
     state = getInitialState()
     return np.outer(state, state)
 
-def getKickFourierCoeffs(func):
-    """
-    Returns the 3d fourier coefficient matrix of the function kick(t1, t2, t3).
-    """
-    theta = np.arange(FSAMPLES) * 2 * np.pi / (FSAMPLES)
-    theta1, theta2, theta3 = np.meshgrid(theta, theta, theta)
-    x = func(theta1, theta2, theta3)
-    y = fft.fftshift(fft.fftn(x, norm="forward"))
-    return y.astype(DTYPE)
-
-cdef double complex complex_exp(double angle) nogil:
-    return <double> cos(angle) + I * <double> sin(angle)
-
-@cython.boundscheck(False)
-@cython.wraparound(False)
-def getDenseFloquetOperator(fourier_coeffs):
-    """
-    Returns the dense version of the floquet operator.
-    """
-
-    F = np.zeros((DIM**3, DIM**3), dtype=DTYPE)
-    cdef double complex[:, :] F_view = F
-    cdef double complex[:, :, :] fourier_view = fourier_coeffs
-
-    cdef int m1, m2, m3, n1, n2, n3
-    cdef int shift = FSAMPLES / 2
-    cdef int row, col
-    # m1 = m2 = m3 = n1 = n2 = n3 = row = col = 0
-    cdef double angle = 0.0
-    cdef double complex fourier = 0 + 0*I
-    cdef double complex phase
-
-    cdef int DIMSQ = DIM**2
-
-    for m1 in prange(-N, N+1, nogil=True):
-        for m2 in prange(-N, N+1):
-            for m3 in prange(-N, N+1):
-                for n1 in prange(-N, N+1):
-                    for n2 in prange(-N, N+1):
-                        for n3 in prange(-N, N+1):
-                            angle = (HBAR / 2) * n1**2 + n2 * OMEGA2 + n3 * OMEGA3
-                            phase = complex_exp(-angle)
-                            fourier = fourier_view[m3-n3+shift, m1-n1+shift, m2-n2+shift]
-                            row = (m1 + N) * DIMSQ + (m2 + N) * DIM + (m3 + N)
-                            col = (n1 + N) * DIMSQ + (n2 + N) * DIM + (n3 + N)
-                            F_view[row, col] = phase * fourier
-
-    return F
-
-
 def getFloquetOperator():
     """
     Returns the floquet operator for the 3d quasiperiodic kicked rotor.
     """
-    fourier_coeffs = getKickFourierCoeffs(kickFunction)
-    # fourier_coeffs[np.abs(fourier_coeffs) < EPSILON] = 0
-    # printNaNInf(fourier_coeffs, "fourier_coeffs")
-
-    F = getDenseFloquetOperator(fourier_coeffs)
-    # printNaNInf(F, "F")
+    F = floquet.getFloquetOperator()
     F.real[np.abs(F.real) < EPSILON] = 0
     F.imag[np.abs(F.imag) < EPSILON] = 0
-    # np.nan_to_num(F, copy=False, nan=0)
-    # printNaNInf(F, "F")
-    # printMatrix(F, "F")
-    # sign, slogdet = np.linalg.slogdet(F)
-    # print(f"det(F) = {sign} x exp({slogdet})")
-    # print(f"Eigenvalues of F are {np.sort(np.abs(eigvals(F)))}")
     Fh = np.conjugate(F.T)
     return csr_matrix(F), csr_matrix(Fh)
 

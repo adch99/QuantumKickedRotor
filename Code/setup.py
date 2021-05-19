@@ -2,8 +2,8 @@ from setuptools import setup, Extension
 from Cython.Build import cythonize
 
 ext_modules = [
-    Extension("kickedrotor.bipartite_entanglement",
-            sources=["kickedrotor/bipartite_entanglement.pyx"],
+    Extension("kickedrotor.quasiperiodic_rotor_3d",
+            sources=["kickedrotor/quasiperiodic_rotor_3d.pyx"],
             libraries=["m"],
             extra_compile_args=["-fopenmp"],
             extra_link_args=["-fopenmp"])
