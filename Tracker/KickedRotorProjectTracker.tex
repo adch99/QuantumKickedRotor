@@ -8,6 +8,8 @@
 \usepackage{graphicx}
 \usepackage{float}
 \usepackage{biblatex}
+\usepackage{svg}
+
 \graphicspath{{./img/}}
 \addbibresource{Readings.bib}
 
@@ -367,6 +369,32 @@ number of values not density.}
     them, but eventually I had to move to the larger datatype as the processing
     became very problematic.
 \end{enumerate}
+
+\section{Spectral Analysis}
+
+\begin{figure}[h]
+    \includegraphics[width=\linewidth]{quasiperiodic_kickedrotor_spectrum_N10_precritical}
+    \caption{Precritical: $p$ in (-10, 10), K = 5, $\hbar$ = 2.89, $\alpha$ = 0.2,
+    $\omega_2$ = $2\pi\sqrt{5}$, $\omega_3$ = $2\pi\sqrt{13}$, eigenphases
+    used = 6361 and 2900 were discarded due to magnitude errors.}
+    \centering
+\end{figure}
+
+\begin{figure}[h]
+    \includegraphics[width=\linewidth]{quasiperiodic_kickedrotor_spectrum_N10_critical}
+    \caption{Critical: $p$ in (-10, 10), K = 6.36, $\hbar$ = 2.85, $\alpha$ = 0.438,
+    $\omega_2$ = $2\pi\sqrt{5}$, $\omega_3$ = $2\pi\sqrt{13}$, eigenphases
+    used = 5639 and 3622 were discarded due to magnitude errors.}
+    \centering
+\end{figure}
+
+\begin{figure}[h]
+    \includegraphics[width=\linewidth]{quasiperiodic_kickedrotor_spectrum_N10_precritical}
+    \caption{Post-critical: $p$ in (-10, 10), K = 8, $\hbar$ = 2.89, $\alpha$ = 0.8,
+    $\omega_2$ = $2\pi\sqrt{5}$, $\omega_3$ = $2\pi\sqrt{13}$, eigenphases
+    used = 4886 and 4375 were discarded due to magnitude errors.}
+    \centering
+\end{figure}
 
 \nocite{*}
 \printbibliography
