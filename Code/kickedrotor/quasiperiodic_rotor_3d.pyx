@@ -85,6 +85,7 @@ def getDenseFloquetOperator(fourier_coeffs):
                             row = (m1 + N) * DIMSQ + (m2 + N) * DIM + (m3 + N)
                             col = (n1 + N) * DIMSQ + (n2 + N) * DIM + (n3 + N)
                             F_view[row, col] = phase * fourier
+                            # F_view[row, col] = fourier
 
     return F
 

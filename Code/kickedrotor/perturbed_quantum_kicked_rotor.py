@@ -11,13 +11,13 @@ sns.set()
 # Physical Constants
 # HBAR = 1.0545718e-34
 HBAR = 1
-TAU = 1 * HBAR
-K = 5 / HBAR
+TAU = 0.5 * HBAR
+K = 14 / HBAR
 DELTAK = 0 # 1e-2 / HBAR
 DELTATAU = 0 #1e-2 / HBAR
 
 # Program Constants
-N = 1000
+N = 500
 DIM = 2*N + 1 # [-N, N]
 EPSILON = 1e-9
 SAMPLES = 1

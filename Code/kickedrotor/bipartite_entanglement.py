@@ -184,7 +184,7 @@ def main():
         momentum_sq_avgs[t] = getAvgMomentumSq(rho1).real
 
         rho = evolve(rho, F, Fh)
-        rho /= np.trace(rho)
+        # rho /= np.trace(rho)
         # np.nan_to_num(rho, copy=False, nan=0)
 
         print()

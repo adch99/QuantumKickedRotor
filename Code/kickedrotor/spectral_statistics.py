@@ -41,7 +41,7 @@ def getSpacingRatios(eigenphases):
     of the given matrix.
     """
     spacings = np.abs(np.diff(eigenphases))
-    spacings /= np.mean(spacings)
+    spacings *= 2 * np.pi / len(spacings)
     ratios = spacings[1:] / spacings[:-1]
     return spacings, ratios
 
@@ -126,26 +126,27 @@ def plotRatios(ratios, ax):
 def plotSpacings(spacings, ax):
     # lims = (spacings.min(), spacings.max())
     s = np.linspace(0, 5, 100)
-    poisson = spacingPoisson(s)
-    cue = spacingSurmiseCUE(s)
-    coe = spacingSurmiseCOE(s)
-    cse = spacingSurmiseCSE(s)
+    N = len(spacings)
+    poisson = N * spacingPoisson(s)
+    cue = N * spacingSurmiseCUE(s)
+    coe = N * spacingSurmiseCOE(s)
+    cse = N * spacingSurmiseCSE(s)
 
-    counts, bins = np.histogram(spacings)
-    total = sum(counts)
+    # counts, bins = np.histogram(spacings, cumulative=True)
+    # total = sum(counts)
     # print("counts:", counts)
     # print("bins:", bins)
     # bin_width = bins[1] - bins[0]
     # counts = [count/total for count in counts]
     # ax.bar(x=bins, height=counts, width=bin_width, label="Calculated", filled=False)
 
-    ax.hist(spacings, density=True, bins=100, range=(0,5),
-        histtype="step", label="Calculated")
+    ax.hist(spacings, bins=100,
+        range=(0,5), histtype="step", label="Calculated")
     ax.plot(s, poisson, label="Poisson")
     ax.plot(s, cue, label="CUE")
     ax.plot(s, coe, label="COE")
     ax.plot(s, cse, label="CSE")
     ax.set_xlabel(r"$s$")
-    ax.set_ylabel(r"$P(s)$")
+    ax.set_ylabel(r"$W(s)$")
     # ax.set_yscale("log")
     ax.legend()

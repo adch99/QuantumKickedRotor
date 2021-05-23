@@ -6,17 +6,10 @@ from scipy.special import jv
 from scipy.integrate import nquad
 import matplotlib.pyplot as plt
 from kickedrotor import bipartite_entanglement as rotor
+from kickedrotor.params import *
 
-HBAR = 2.89
-K = 5
-ALPHA = 0.2
-OMEGA2 = 2 * np.pi * np.sqrt(5)
-OMEGA3 = 2 * np.pi * np.sqrt(13)
-N = 8
-DIM = 2*N + 1
-EPSILON = 1e-6
 
-def test_initialstate():
+def notest_initialstate():
     main_vunit = np.ones(DIM**2) / DIM
     zero_vunit = np.zeros(DIM**2)
     units = (zero_vunit,)*N + (main_vunit,) + (zero_vunit,)*N
@@ -70,7 +63,7 @@ def notest_fourierBessel():
 
     np.testing.assert_allclose(fourier_sum, expected)
 
-def test_floquet():
+def notest_floquet():
     F, Fh = rotor.getFloquetOperator()
     del Fh
     m1, m2, m3 = (1, 3, 0)
