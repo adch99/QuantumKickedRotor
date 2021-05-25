@@ -1,0 +1,104 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.1 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated by
+% biber as required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+
+\refsection{0}
+  \datalist[entry]{nty/global//global/global}
+    \entry{muller_disorder_2016}{article}{}
+      \name{author}{2}{}{%
+        {{hash=bc8a635532631e057aa4f2b61429b4ff}{%
+           family={Müller},
+           familyi={M\bibinitperiod},
+           given={Cord\bibnamedelima A.},
+           giveni={C\bibinitperiod\bibinitdelim A\bibinitperiod}}}%
+        {{hash=8257f67b93cb652cc5aa06ffa4562846}{%
+           family={Delande},
+           familyi={D\bibinitperiod},
+           given={Dominique},
+           giveni={D\bibinitperiod}}}%
+      }
+      \strng{namehash}{ba46376f4cbbb3adea406defc888ea86}
+      \strng{fullhash}{ba46376f4cbbb3adea406defc888ea86}
+      \strng{bibnamehash}{ba46376f4cbbb3adea406defc888ea86}
+      \strng{authorbibnamehash}{ba46376f4cbbb3adea406defc888ea86}
+      \strng{authornamehash}{ba46376f4cbbb3adea406defc888ea86}
+      \strng{authorfullhash}{ba46376f4cbbb3adea406defc888ea86}
+      \field{sortinit}{M}
+      \field{sortinithash}{2e5c2f51f7fa2d957f3206819bf86dc3}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{shorttitle}
+      \field{abstract}{The specific problem we address in these lectures is the problem of transport and localization in disordered systems, when interference is present, as characteristic for waves, with a focus on realizations with ultracold atoms.}
+      \field{day}{1}
+      \field{eprinttype}{arxiv}
+      \field{journaltitle}{{arXiv}:1005.0915 [cond-mat, physics:quant-ph]}
+      \field{langid}{english}
+      \field{month}{6}
+      \field{shorttitle}{Disorder and interference}
+      \field{title}{Disorder and interference: localization phenomena}
+      \field{urlday}{21}
+      \field{urlmonth}{4}
+      \field{urlyear}{2021}
+      \field{year}{2016}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \verb{eprint}
+      \verb 1005.0915
+      \endverb
+      \verb{file}
+      \verb Müller and Delande - 2016 - Disorder and interference localization phenomena.pdf:C\:\\Users\\adity\\Zotero\\storage\\457U9Q7T\\Müller and Delande - 2016 - Disorder and interference localization phenomena.pdf:application/pdf
+      \endverb
+      \verb{urlraw}
+      \verb http://arxiv.org/abs/1005.0915
+      \endverb
+      \verb{url}
+      \verb http://arxiv.org/abs/1005.0915
+      \endverb
+      \keyw{Condensed Matter - Disordered Systems and Neural Networks,Condensed Matter - Quantum Gases,Quantum Physics}
+    \endentry
+    \entry{stockmann}{book}{}
+      \name{author}{1}{}{%
+        {{hash=25a896a1c39481a606d0755ad147fa87}{%
+           family={Stöckmann},
+           familyi={S\bibinitperiod},
+           given={Hans-Jürgen},
+           giveni={H\bibinithyphendelim J\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {Cambridge University Press}%
+      }
+      \strng{namehash}{25a896a1c39481a606d0755ad147fa87}
+      \strng{fullhash}{25a896a1c39481a606d0755ad147fa87}
+      \strng{bibnamehash}{25a896a1c39481a606d0755ad147fa87}
+      \strng{authorbibnamehash}{25a896a1c39481a606d0755ad147fa87}
+      \strng{authornamehash}{25a896a1c39481a606d0755ad147fa87}
+      \strng{authorfullhash}{25a896a1c39481a606d0755ad147fa87}
+      \field{sortinit}{S}
+      \field{sortinithash}{c319cff79d99c853d775f88277d4e45f}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Quantum Chaos: An Introduction}
+      \field{year}{1999}
+      \field{dateera}{ce}
+      \verb{file}
+      \verb Hans-Jürgen Stöckmann - Quantum chaos_ An introduction-Cambridge University Press (1999).djvu:C\:\\Users\\adity\\Zotero\\storage\\5AG8A8TJ\\Hans-Jürgen Stöckmann - Quantum chaos_ An introduction-Cambridge University Press (1999).djvu:application/octet-stream
+      \endverb
+    \endentry
+  \enddatalist
+\endrefsection
+\endinput
+

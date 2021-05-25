@@ -1,0 +1,202 @@
+\documentclass[twocolumn]{report}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{braket}
+\usepackage{graphicx}
+\usepackage{biblatex}
+\addbibresource{citations.bib}
+
+% Title Page
+\title{Quantum Kicked Rotor Systems}
+\author{Aditya Chincholi}
+
+
+\begin{document}
+\maketitle
+
+\onecolumn
+\begin{abstract}
+\end{abstract}
+\twocolumn
+\chapter{Introduction}
+% We give a brief introduction to the kicked rotor system
+% and all it's variants.
+The quantum kicked rotor is defined by the Hamiltonian:
+
+\begin{equation}
+H = \frac{p^2}{2} + k cos(\theta) \sum_{n \in \mathbb{Z}} \delta(t - n\tau)
+\end{equation}
+
+This classical analog of this system reduces to the Chirikov standard map
+\cite{stockmann}:
+
+\begin{align}
+    p_{n+1} = p_n + k sin(\theta_n) \\
+    \theta_{n+1} = \theta_n + p_{n+1} \label{eq:classicalmap}
+\end{align}
+
+This map is chaotic and shows a great deal of complexity, but we will only
+deal with the quantum version here. The key point for us, is that this
+classical map displays diffusion in the angular momentum space. This can be
+seen qualitatively by looking at \ref{eq:classicalmap}. When $p_n$ becomes
+larger than $2\pi$, which will happen after a few kicks if $k$ is large,
+then the successive $\theta_n$ will become uncorrelated. As the sign of
+$sin(\theta_n)$ becomes random, the sequence ${p_n}$ describes a random walk.
+This can be backed by a quantitative calculation which shows that the
+the distribution $f_N(p)$ i.e. the distribution of momentum after N steps
+wrt different initial conditions ($\theta_0$) is well approximated by a
+gaussian distribution with a diffusion constant \cite{stockmann}:
+\begin{equation}
+    D = \frac{k^2}{2}
+\end{equation}
+
+As a time dependent problem, the quantum kicked rotor has no energy eigenstates.
+However, since it is a periodic kicking potential, we can use floquet operators
+to simulate it.
+
+\begin{align}
+    F &= \lim_{\epsilon \to 0} \int_{0}^{\tau + \epsilon} exp(-iHt/\hbar) dt\\
+    &= exp\left(\frac{-i}{\hbar} cos\ \theta\right)
+    exp\left(\frac{-i\tau}{2\hbar}p^2\right)
+\end{align}
+
+The floquet operator allows us to obtain the state of the system at $t = n\tau$.
+Working in the eigenbasis of the (angular) momentum operator
+$p \ket{n} = \hbar n \ket{n}; \braket{\theta | n} = e^{in\theta}$, we get:
+
+\begin{equation}
+    \braket{m | F | n} = exp\left(-\frac{i \tau}{2\hbar}m^2\right) i^{n-m}
+    J_{n-m}\left(\frac{k}{\hbar}\right)
+\end{equation}
+
+We can use this expression for the floquet matrix to simulate the quantum
+kicked rotor system as $F^N \ket{\psi(0)} = \ket{\psi(N\tau)}$. Even though,
+the system doesn't have stationary states, we can obtain floquet eigenstates
+by diagonalising the floquet operator.
+
+An important variant of the kicked rotor system is the quasiperiodic kicked
+rotor, which is discussed further in the report. It is given by the
+hamiltonian:
+
+\begin{equation}
+H = \frac{p^2}{2} + \mathcal{K}(t) cos(\theta)\sum_{n \in \mathbb{Z}}
+\delta(t - n\tau)
+\end{equation}
+
+where $\mathcal{K}(t) = k(1 + cos(\omega_2 t + \phi_2) cos(\omega_3 t
++ \phi_3))$.
+
+\chapter{Readings and Work Done}
+\section{Localisation}
+The quantum kicked rotor also shows the same diffusion mechanism as the
+classical analog in the beginning. If we take the initial state as $\ket{0}$
+which has a uniform distribution of $\theta's$, then the system shows a
+gaussian shape in the momentum space. But after a certain time, the
+diffusion is suppressed by quantum effects which lead to an exponential
+localisation in the momentum space distribution around $\ket{0}$. This
+phenomenon is called `dynamical localisation'. It is analogous to the
+Anderson localisation found in tight-binding systems.
+
+\section{Anderson Localisation}
+We now take a short detour to explain the phenomenon of Anderson Localisation.
+The contents of this section are largely taken from \cite{muller_disorder_2016}.
+
+Consider a non-relativistic particle or gaussian wave packet propogating
+through a channel. If the channel has a constant potential throughtout
+then the wave will propogate through it unimpeded performing ballistic
+motion. If the channel has a constant potential with a small noise
+term, then the potential landscape will look like a series of speckles
+on an otherwise flat surface. Let us assume these speckles are well
+separated and look more like spikes rather than shallow hills.
+
+We have three length scales here, $l$ the
+spacing between these speckles, $\delta$ the width of the speckle and
+$\lambda$ the de Broglie wavelength of the particle. We assume $\delta <<
+\lambda << l$ and thus, the particle sees the speckles as well-separated
+$\delta$-spikes.
+
+Each of these speckles - wells and peaks - acts as a
+scatter for our particle. Quantum mechanically, each of them has a
+finite, non-zero probability of both reflecting and transmitting the
+particle.
+
+Suppose then that our particle hits scatterer 1 and gets
+transmitted with some probability. It then performs ballistic motion and
+hits scatterer 2. Again there is some probability of transmission and
+reflection. The particle may get transmitted immediately, or it may
+undergo reflection twice (a complete internal reflection) and then get
+transmitted. It may undergo a complete internal reflection multiple times
+before crossing the scatterer. This leads to the net transmission
+probability being dependent on the phase difference accumulated over
+a complete internal reflection.
+
+The net transmission probability can
+be found by multiplying the transfer matrices of the two scatterers and
+obtaining an overall transfer matrix. This yields the expression:
+
+\begin{equation}
+    T_{12} = \frac{T_1 T_2}{1 + \sqrt{R_1 R_2} e^{i\theta}}
+\end{equation}
+where $T_i$ and $R_i$ denote the transmission and reflection
+probabilities of the $i$th scatterer, $\theta$ is the phase accumulated
+in a complete internal reflection.
+
+This phase is distributed randomly irrespective of the distribution of
+distances between the scatterers as $\lambda << l$ and thus, we may
+assume a uniform distribution for $\theta$.
+
+Decoherence can occur if during the ballistic part, the particle couples
+to an external degree of freedom. In such a scenario, we can assume a
+uniform distribution for $\theta$ and obtain an average transmission
+probability. In doing this, we are effectively killing any interference
+effects as we are considering the phase to be completely scrambled by the time
+it reaches scatterer 2. The calculations then yield $\langle T_{12} \rangle
+= T_1 T_2 / (1 - R_1 R_2)$. For a channel of length $L$ and nearly uniform
+scatterer density $n$, this gives us $R/T \propto nL$ which is Ohm's law.
+
+But things
+are much more interesting if we have phase-coherent transmission through
+the channel. We must then find a quantity that is additive for such a
+transmission and average over it. $\kappa = - ln\ T$ is such a quantity.
+It exhibits the property $\langle ln\ T_{12} \rangle = ln\ T_1 + ln\ T_2$ and
+due to this, it displays self-averaging.
+
+Therefore, for a channel of
+length $L$, $|\langle ln\ T \rangle| \propto nL$. Since $T < 1$, $ln\ T < 0$
+and thus we have $exp(\langle ln\ T \rangle) \sim exp(-L/\xi_{loc})$ where
+$\xi_{loc}$ is called the localisation length. This exponential localisation
+in the absence of absorption is a hallmark of strong localisation.
+
+Here,
+$ln\ T$ exhibits a normal distribution and its peak corresponds to the most
+likely value $T_{typ} = exp(\langle ln\ T \rangle) = e^{-L/\xi_{loc}}$. This
+phenomenon is called Anderson localisation.
+
+In 3D, the situation becomes
+more complicated and the system can either allow transmission or show
+localisation based on disorder strength. These two regimes are separated by
+a 2nd order phase transition known as the Anderson transition or the
+metal-insulator transition, metal referring to transmission and insulator
+referring to localisation of the particle.
+
+Even though Anderson originally
+introduced it in the form of a tight-binding model with discrete spatial
+sites, our presented model also exhibits the same behaviour and thus has
+been used in this report.
+
+\section{Robustness}
+
+\section{Anderson Transition}
+
+\section{Bipartite Entanglement}
+
+\section{Spectral Analysis}
+
+\chapter{Epilogue}
+\section{Future Prospects}
+
+\section{Conclusion}
+
+\printbibliography
+
+\end{document}

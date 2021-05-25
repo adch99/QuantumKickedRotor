@@ -19,6 +19,9 @@ Tracker/*
 !Tracker/*.bib
 !Tracker/*.pdf
 !Tracker/*.pptx
-!Tracker/*.png
+!Tracker/img
+!Tracker/img/*.png
+!Tracker/img/*.pdf
+!Tracker/Report
 !Tracker/Report/*.tex
 !Tracker/Report/*.bib
