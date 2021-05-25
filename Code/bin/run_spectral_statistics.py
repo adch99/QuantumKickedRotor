@@ -6,15 +6,15 @@ import seaborn as sns
 import scipy.stats as stats
 import scipy.linalg as linalg
 import seaborn as sns
-# import kickedrotor.perturbed_quantum_kicked_rotor as rotor
-import kickedrotor.quasiperiodic_rotor_3d as rotor
+import kickedrotor.perturbed_quantum_kicked_rotor as rotor
+# import kickedrotor.quasiperiodic_rotor_3d as rotor
 import kickedrotor.spectral_statistics as spectral
-import kickedrotor.params as params
+# import kickedrotor.params as params
 sns.set()
 
-# F = rotor.denseFloquetOperator()
-F = rotor.getFloquetOperator()
-print(f"det(F) = {np.linalg.det(F)}")
+F = rotor.denseFloquetOperator()
+# F = rotor.getFloquetOperator()
+# print(f"det(F) = {np.linalg.det(F)}")
 # F = stats.ortho_group.rvs(1000)
 # F = np.diag(np.exp(1j * np.random.exponential(scale=2*np.pi, size=(500,))))
 phases, eigvals, num_discard = spectral.getPhaseSpectrum(F, tol=1e-3, discard=True)
@@ -45,7 +45,8 @@ spectral.plotRatios(ratios, ax=ax1)
 spectral.plotSpacings(spacings, ax=ax2)
 # ax1.set_ylim(0, 1.1)
 # ax2.set_ylim(0, 1.1)
-fig.suptitle(f"Quasiperiodic Kicked Rotor (K = {rotor.K}, Alpha = {rotor.ALPHA})")
-# plt.savefig(f"plots/kickedrotor_spectrum_K{rotor.K}.pdf")
-plt.savefig(f"plots/quasiperiodic_kickedrotor_spectrum_N{params.N}_K{params.K}_ALPHA{params.ALPHA}_HBAR{params.HBAR}.pdf")
+fig.suptitle(f"Quasiperiodic Kicked Rotor (K = {rotor.K})")
+# fig.suptitle(f"Quasiperiodic Kicked Rotor (K = {params.K}, Alpha = {params.ALPHA})")
+plt.savefig(f"plots/kickedrotor_spectrum_K{rotor.K}_changed.pdf")
+# plt.savefig(f"plots/quasiperiodic_kickedrotor_spectrum_N{params.N}_K{params.K}_ALPHA{params.ALPHA}_HBAR{params.HBAR}.pdf")
 plt.show()
