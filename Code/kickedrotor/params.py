@@ -3,8 +3,8 @@ import numpy as np
 
 # Scientific Constants
 HBAR = 2.85
-K = 4
-ALPHA = 0.2
+K = 7
+ALPHA = 0.8
 OMEGA2 = 2 * np.pi * np.sqrt(5)
 OMEGA3 = 2 * np.pi * np.sqrt(13)
 
