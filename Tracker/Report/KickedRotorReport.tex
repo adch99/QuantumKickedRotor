@@ -1,8 +1,13 @@
-\documentclass[twocolumn]{report}
+\documentclass[twocolumn,nobalancelastpage]{report}
+\usepackage[margin=0.75in]{geometry}
+% \usepackage{flushend}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{braket}
 \usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{float}
+% \usepackage[parfill]{parskip}
 \usepackage{biblatex}
 \addbibresource{citations.bib}
 
@@ -83,8 +88,8 @@ H = \frac{p^2}{2} + \mathcal{K}(t) cos(\theta)\sum_{n \in \mathbb{Z}}
 \delta(t - n\tau)
 \end{equation}
 
-where $\mathcal{K}(t) = k(1 + cos(\omega_2 t + \phi_2) cos(\omega_3 t
-+ \phi_3))$.
+where $\mathcal{K}(t) = k(1 + \epsilon cos(\omega_2 t + \phi_2)
+cos(\omega_3 t + \phi_3))$.
 
 \chapter{Readings and Work Done}
 \section{Localisation}
@@ -97,6 +102,91 @@ localisation in the momentum space distribution around $\ket{0}$. This
 phenomenon is called `dynamical localisation'. It is analogous to the
 Anderson localisation found in tight-binding systems.
 
+We now simulate the system using $\ket{\psi(N\tau)} = F^N \ket{0}$. The
+results are shown in Figure \ref{fig:kickedrotorplot}. The figure shows the
+state of the system as after different number of timesteps. The initial
+stages ($t = 100$) show the classically expected gaussian profile in the
+momentum space probability distribution. But after that the quantum effects
+begin to dominate and we obtain a exponentially linear profile i.e. $P(p)
+\sim e^{-p/p_{loc}}$.
+
+Though it is hard to see on the log scale, $\langle p^2 \rangle$ shows a
+lineary increasing profile during the diffusion phase (this is the same as
+the classical case) but then saturates as localisation occurs at longer time
+scales.
+
+So why does localisation occur? Qualitatively speaking, after certain
+number of timesteps we see destructive interference happening for
+the transition amplitudes (i.e. the probability of $\ket{m} = F\ket{n}$)
+when we calculate the expectation $\langle p^2 \rangle$. For a more
+quantitate argument, the reader is encouraged to see section 4.2.1 of
+\cite{stockmann}.
+
+A different way to see the emergence of localisation is through a nonlinear
+transformation that connects the kicked rotor system with the Anderson model.
+The next section will cover the Anderson model in more detail. Here we just
+briefly outline the mapping, for more details see \cite{stockmann}.
+Consider a 1d quantum kicked rotor of the form:
+\begin{equation}
+    H = K(p) + V(\theta)\sum_{n} \delta(t - n)
+\end{equation}
+Then we obtain the floquet operator:
+\begin{align}
+    F &= e^{-iV(\theta)} e^{-iK(p)} \\
+    F_{nm} &= e^{-iK(m)} J_{n-m} \\
+    \text{where } & J_n = \frac{1}{2\pi} \int_0^{2\pi} e^{-iV(\theta)}
+    e^{in\theta} d\theta
+\end{align}
+Then we consider the eigenvector $\mathbf{a}$ of $F$ with eigenphase $\phi$
+and use the mapping $W(\theta) = -tan(V(\theta) / 2)$ and $\bar{\mathbf{a}}
+= (e^{i(\phi - K)} + 1)\mathbf{a}$. Then we obtain:
+\begin{equation}
+    tan\left(\frac{\phi - K}{2}\right) \bar{\mathbf{a}} + W\bar{\mathbf{a}} = 0
+\end{equation}
+Taking a fourier transform of all the components wrt $\theta$
+\begin{equation}
+    \sum_{k \neq n} W_{n-k} \bar{a_k} + E^0_n \bar{a_n} = E \bar{a_n}
+\end{equation}
+where $E_n^0 = tan((\phi - K(n)) / 2)$ and $E = -W_0$. This is the Anderson
+tight-binding model with bond strengths given by the $W_{n-m}$'s and site
+energies given by $E^0_n$'s.
+
+% \onecolumn
+\newpage
+\onecolumn
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.5 \textwidth}
+        \centering
+        \includegraphics[width=0.8 \linewidth]{img/quantumkickedrotor_T100.png}
+        \caption{After 100 timesteps.}
+    \end{subfigure}%
+    \begin{subfigure}[b]{0.5 \textwidth}
+        \centering
+        \includegraphics[width=0.8 \linewidth]{img/quantumkickedrotor_T200.png}
+        \caption{After 200 timesteps}
+    \end{subfigure}%
+    \newline
+    \begin{subfigure}[b]{0.5 \textwidth}
+        \centering
+        \includegraphics[width=0.8 \linewidth]{img/quantumkickedrotor_T500.png}
+        \caption{After 500 timesteps.}
+    \end{subfigure}%
+    \begin{subfigure}[b]{0.5 \textwidth}
+        \centering
+        \includegraphics[width=0.8 \linewidth]{img/quantumkickedrotor_T750.png}
+        \caption{After 750 timesteps.}
+    \end{subfigure}
+    \caption{Evolution of the kicked rotor system with $k = 5$, $\hbar = 1$
+and $\tau = 1$ in a basis of $\{\ket{-1000},...,\ket{1000}\}$. The top
+left plot is $[p^2]$ vs $t$; top right is $log_{10}(P(p = n\hbar))$ vs
+$n$ i.e the log of the probability distribution in momentum space and the
+bottom left plot is the variance of momentum square $[\Delta(p^2)]$ vs
+time $t$.}
+    \label{fig:kickedrotorplot}
+\end{figure}
+
+\twocolumn
 \section{Anderson Localisation}
 We now take a short detour to explain the phenomenon of Anderson Localisation.
 The contents of this section are largely taken from \cite{muller_disorder_2016}.
@@ -185,12 +275,152 @@ sites, our presented model also exhibits the same behaviour and thus has
 been used in this report.
 
 \section{Robustness}
+We now consider the question of how robust the phenomenon of dynamical
+localisation is to noise in the kicking potential. For the Anderson model,
+the localisation is destroyed mainly if there are long-range correlations
+in the scattering peaks. But we know that the mapping between the Anderson
+model and the kicked rotor is a nonlinear mapping and hence, it may show
+a very different behaviour to noise in the kicks.
+
+We investigate the robustness of the kicked rotor model by introducing noise
+in two different ways:
+\begin{enumerate}
+    \item Through kick strengths $k$: At each time step we add a small noise
+    term to the kick strength $k$. So $F(k+\delta k)\ket{\psi((N-1)\tau)} =
+    \ket{\psi(N\tau)}$.
+
+    \item Through kicking periods $\tau$: At each timestep the kick is
+    delivered at time $t = N\tau + \delta \tau$.
+\end{enumerate}
+
+This was implemented numerically in the same way as quantum kicked rotor,
+the only difference being that a new floquet matrix must be generated at
+each timestep. In the implementation, there is only one point of note - the
+perturbation in the kicking period must be compensated for on the next step
+in order to keep the kicking times of the form $t = N\tau + \delta \tau$.
 
 \section{Anderson Transition}
+The Anderson transition is a second order phase transition occuring in the
+tight-binding Anderson model of dimension $d > 2$ \cite{muller_disorder_2016}.
+The system shows metallic conduction i.e. delocalised states for small values
+of disorder strength and insulator-like behaviour - localisation for larger
+values of disorder strength. This phenomenon can be investigated analytically
+through the use of a scaling function $\beta$ which describes the behaviour
+of the (dimensionless) conduction as the length $L$ of the sample changes.
+This is described in many places such as \cite{muller_disorder_2016}. We
+shall not be pursuing that line of attack here.
+
+We have already show the relation between the kicked rotor systems and the
+Anderson tight-binding models in previous sections. Now we consider a
+particular case of this. We consider the quasiperiodic kicked rotor:
+%
+\begin{equation}
+    H = \frac{p^2}{2} + \mathcal{K}(t) cos(\theta) \sum_n \delta(t - n\tau)
+\end{equation}
+%
+where $\mathcal{K}(t) = 1 + \epsilon cos(\omega_2 t + \phi_2)
+cos(\omega_3 t + \phi_3)$. The dynamics of this 1d system is identical
+to the following 3d kicked rotor system:
+%
+\begin{align}
+    H_{3d} &= \frac{p_1^2}{2} + p_2 \omega_2 + p_3 \omega_3\\
+    &+ k cos(\theta_1) (1 + \epsilon cos(\theta_2) cos(\theta_3))
+    \sum_n \delta(t - n\tau)\\
+    \text{with } &\ket{\psi_{3d}(0)} = \ket{\psi_{1d}(0)}
+    \ket{\theta_2 = \phi_2}\ket{\theta_3 = \phi_3}
+\end{align}
+%
+If we consider the fourier transform of the eigenvalue equation
+for the floquet operator of this Hamiltonian i.e.
+$F_{3d}\ket{\phi_\omega} = e^{i\omega}\ket{\phi_\omega}$.
+Taking a fourier transform of this equation we obtain:
+%
+\begin{equation}
+    \epsilon_{\mathbf{m}} \Phi_{\mathbf{m}} + \sum_{\mathbf{r} \neq 0}
+    W_{\mathbf{r}}\Phi_{\mathbf{m - r}} = -W_0 \Phi_{\mathbf{m}}
+\end{equation}
+%
+where $\mathbf{m} = (m_1, m_2, m_3)$ and $\mathbf{r}$ label sites on
+a 3d lattice and the $\Phi_{\mathbf{m}}$ are related to the fourier
+components of the floquet eigenstate $\ket{\phi_\omega}$
+\cite{fishman_chaos_1982}\cite{lemarie_universality_2009}.
+
+The quasiperiodic kicked rotor is therefore expected to show a
+phase transition from delocalised to localised states as the
+the parameters are varied and certain conditions are satisfied.
+In particular, the quadruplet $(\hbar, \omega_2, \omega_3, 2\pi)$
+should be an incommensurate quadruplet ($\hbar$ is the effective
+Planck's constant given by $[\theta, p] = i\hbar$). The transition
+is observed as we increase $K$ and $\epsilon$. In particular, we use
+a set of values $\hbar =  2.85$, $\omega_2 = 2\pi\sqrt{5}$,
+$\omega_3 = 2\pi\sqrt{13}$, $K = 6.24 \to 6.58$ and
+$\epsilon = 0.413 \to 0.462$. \cite{lemarie_universality_2009}
+
+This phase transition has been studied in detail and the author
+sought to reproduce the results from \cite{lemarie_universality_2009}.
+\cite{lemarie_universality_2009} uses single parameter scaling theory
+to utilize simulation data to evaluate properties of the critical
+point of the transition in order to mitigate finite time effects.
+The quantity $\Lambda = \langle (p/\hbar)^2 \rangle t^{-2/3}$ is
+the relevant scaling parameter for this transition. The average in
+$\langle (p/\hbar)^2 \rangle$ is an average over initial conditions
+i.e. over $(\phi_1, \phi_2)$.
 
 \section{Bipartite Entanglement}
+The 1d quasiperiodic kicked rotor shows the dynamics of the 3d kicked
+rotor for a particular value of $(\phi_2,\phi_3)$. It doesn't emulate
+the full rotor as it lacks the degrees of freedom. Particularly missing
+from the 1d case is the entanglement between the 1st momentum space and
+the 2nd, 3rd (quasi)momentum spaces. That the floquet operator entangles
+the spaces is evident from the calculation of the floquet operator:
+
+\begin{align}
+    &F_{3d} \\
+    &= e^{-i K cos\theta_1 (1 + \alpha cos\theta_2 cos\theta_3) / \hbar}
+    e^{-i (p_1^2 / 2 + p_2 \omega_2 + p_3 \omega_3)/\hbar} \\
+    &\bra{\mathbf{m}} F_{3d} \ket{\mathbf{n}} \\
+    &= \bra{m_1, m_2, m_3}F_{3d}\ket{n_1, n_2, n_3} \\
+    &= \bra{\mathbf{m}}
+    e^{-i K cos\theta_1 (1 + \alpha cos\theta_2 cos\theta_3) / \hbar}
+    \ket{\mathbf{n}} \\
+    &\ \ \ \ e^{-i (\hbar n_1^2 / 2 + n_2 \omega_2 + n_3 \omega_3)} \\
+    &= \bra{\mathbf{m}} \int_{[0,2\pi]^3} d^3\theta \
+    e^{-i K cos\theta_1 (1 + \alpha cos\theta_2 cos\theta_3) / \hbar}
+    \ket{\boldsymbol{\theta}}\\
+    &\ \ \ \ \braket{\boldsymbol{\theta}|\mathbf{n}}
+    e^{-i (\hbar n_1^2 / 2 + n_2 \omega_2 + n_3 \omega_3)} \\
+    &= \int_{[0,2\pi]^3} d^3\theta \ \braket{\mathbf{m}|\boldsymbol{\theta}}
+    e^{-i K cos\theta_1 (1 + \alpha cos\theta_2 cos\theta_3) / \hbar}\\
+    &\ \ \ \ \braket{\boldsymbol{\theta}|\mathbf{n}}
+    e^{-i (\hbar n_1^2 / 2 + n_2 \omega_2 + n_3 \omega_3)} \\
+    &= e^{-i (\hbar n_1^2 / 2 + n_2 \omega_2 + n_3 \omega_3)}
+    \frac{1}{(2\pi)^3} \\
+    &\ \ \int_{[0,2\pi]^3} d^3\theta \
+    e^{-i(\mathbf{m} - \mathbf{n})\cdot \boldsymbol{\theta}}
+    e^{-i K cos\theta_1 (1 + \alpha cos\theta_2 cos\theta_3) / \hbar}\\
+    &\approx e^{-i (\hbar n_1^2 / 2 + n_2 \omega_2 + n_3 \omega_3)}
+    DFT_N(f(\boldsymbol{\theta}))[\mathbf{m} - \mathbf{n}]\\
+    &\text{where } \nonumber\\
+    &f(\boldsymbol{\theta}) =
+    e^{-i K cos\theta_1 (1 + \alpha cos\theta_2 cos\theta_3) / \hbar}
+\end{align}
+%
+The fourier transform integral clearly mixes up the $\theta_1$, $\theta_2$
+and $\theta_3$ terms and hence leads to entanglement. Therefore, we
+should be able to measure the entanglement between the subspaces
+$\mathcal{H}_1$ and $\mathcal{H}_{2,3}$. And this is what we proceed to
+accomplish. However, there are several issues in doing this. The first
+and foremost issue is that we need to simulate a 3d quantum system in
+order to calculate the bipartite entanglement entropy between
+$\mathcal{H}_1$ and $\mathcal{H}_{2,3}$. Therefore, the memory required
+and the computational complexity for computing the floquet and
+density matrices scales as $N^6$ where $N$ is the size of the momentum
+eigenbasis being used.
 
 \section{Spectral Analysis}
+The theory of random matrices has been studied extensively by other people.
+In this section, we draw from this and try to understand the spectral
+structure of the floquet matrix. 
 
 \chapter{Epilogue}
 \section{Future Prospects}

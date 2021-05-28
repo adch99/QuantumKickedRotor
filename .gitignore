@@ -14,14 +14,15 @@ Code/cython_debug
 
 # Ignore all files in the Tracker directory
 Tracker/*
+Tracker/Report/*
+Tracker/Report/build/*
 # Except tex, bib, pdf and pptx files
 !Tracker/*.tex
 !Tracker/*.bib
 !Tracker/*.pdf
 !Tracker/*.pptx
 !Tracker/img
-!Tracker/img/*.png
-!Tracker/img/*.pdf
-!Tracker/Report
+!Tracker/Report/img
 !Tracker/Report/*.tex
 !Tracker/Report/*.bib
+!Tracker/Report/*.pdf
