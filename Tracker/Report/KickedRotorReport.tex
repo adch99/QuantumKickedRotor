@@ -1,6 +1,6 @@
 \documentclass[twocolumn,nobalancelastpage]{report}
 \usepackage[margin=0.75in]{geometry}
-% \usepackage{flushend}
+\usepackage[utf8]{inputenc}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{braket}
@@ -9,7 +9,21 @@
 \usepackage{float}
 % \usepackage[parfill]{parskip}
 \usepackage{biblatex}
+\usepackage{hyperref}
 \addbibresource{citations.bib}
+
+\hypersetup{
+    pdftitle={Quantum Kicked Rotor Systems},
+    pdfauthor={Aditya Chincholi},
+    pdfsubject={Semester Project Report},
+    bookmarksnumbered=true,
+    bookmarksopen=true,
+    bookmarksopenlevel=1,
+    colorlinks=false,
+    pdfstartview=Fit,
+    pdfpagemode=UseOutlines,
+    pdfpagelayout=TwoPageRight
+}
 
 % Title Page
 \title{Quantum Kicked Rotor Systems}
@@ -20,8 +34,18 @@
 \maketitle
 
 \onecolumn
+\tableofcontents
+
 \begin{abstract}
+We discuss kicked rotor systems and the properties of dynamical
+localisation in these system, particularly their robustness to
+noise. We also discuss the quasiperiodic kicked rotor and the
+change in its properties as it crosses the critical point of the
+metal-insulator transition, particularly the change in the spectrum.
+We present results on the evaluation of the bipartite entanglement
+entropy in the 3d quasiperiodiic kicked rotor system.
 \end{abstract}
+
 \twocolumn
 \chapter{Introduction}
 % We give a brief introduction to the kicked rotor system
@@ -420,7 +444,63 @@ eigenbasis being used.
 \section{Spectral Analysis}
 The theory of random matrices has been studied extensively by other people.
 In this section, we draw from this and try to understand the spectral
-structure of the floquet matrix. 
+structure of the floquet matrix. As the floquet operator elements consist
+of the fourier transform of a kicking function with a pseudo-random strength
+(at least for longer time scales). So we expect that the elements are randomly
+distributed. Consequently, we would like to analyse it as a random matrix.
+
+Now random matrix theory makes predictions about the eigenvalue spectrum
+of the any matrix whose elements are sampled from a gaussian distribution.
+Depending on the symmetries of the matrix, we can divide it into 3 different
+ensembles: GUE (Gaussian Unitary Ensemble), GOE (Gaussian Orthogonal Ensemble)
+and GSE (Gaussian Symplectic Ensemble).
+
+To get an easily observable quantity, we consider the level spacings in the
+spectrum of these matrices. These theories were made from the viewpoint of
+analysing the Hamiltonian matrix of different quantum systems. Therefore,
+the analysed quantity consists of the difference of consecutive eigenvalues
+i.e. $d_i = \lambda_{i+1} - \lambda_{i}$. Since the Hamiltonian is hermitian, the
+$\lambda_i$'s are real and thus we can talk about consecutive eigenvalues.
+We define $P(s)$ as the probability distribution of the $s_i = d_i / \bar{d}$
+where $\bar{d}$ is the mean level spacing. For systems where the local
+density of states varies a lot, an `unfolding' procedure may be required to
+obtain this. We will not need it and hence, do not describe it.
+
+It can be shown that if the classical analog of the system is integrable,
+then the eigenvalues of the matrix are uncorrelated and thus the spacings
+form a Poisson distribution \cite{stockmann}\cite{mehta_random_2004}. The
+systems which have a chaotic classical analog will fall into one of the 3
+mentioned ensembles: GOE (if the system has time inversion invariance and
+and rotational invariance), GSE (if the system is time inversion invariant
+but not rotationally invariant) and GUE (in all other cases). A complicated
+but exact distribution function can be obtained for the level spacings of
+all of these \cite{mehta_random_2004}, but Wigner derived a simple formula
+from the $2 \times 2$ matrix case which holds reasonably well, especially
+for large N. These are listed below \cite{stockmann}:
+
+\begin{align}
+    P_{int}(s) &= exp(-s)\\
+    P_{GOE}(s) &= \frac{\pi}{2} s\ exp\left(-\frac{\pi}{4}s^2\right)\\
+    P_{GUE}(s) &= \frac{32}{\pi^2} s^2\ exp\left(-\frac{4}{\pi}s^2\right)\\
+    P_{GSE}(s) &= \frac{2^{18}}{3^6 \pi^3} s^4\ exp\left(-\frac{64}{9\pi}s^2\right)
+\end{align}
+
+However, our kicked rotor systems have time dependent Hamiltonians, and
+therefore we cannot apply this analysis to it. However, it turns out that
+we can use the same strategy on the eigenenergies. These are the phase
+angles of the eigenvalues of the floquet matrix. It turns out that their
+distribution is nearly identical to the guassian ensembles' eigenvalues.
+Therefore, there exist analogs of each of the ensembles called COE
+(Circular Orthogonal Ensemble), CUE (Circular Unitary Ensemble) and
+CSE (Circular Symplectic Ensemble). Since the space of these phases is
+compact $[0, 2\pi)$, we also avoid complications with unfolding as the
+density of states is uniform $\frac{N}{2\pi}$ ($N$ being the number
+of eigenphases). Correspondingly, we define
+\begin{equation}
+P(s) = \frac{2\pi}{N} (\phi_{i+1} - \phi_i)
+\end{equation}
+where $\phi_i$ are the eigenphases of the floquet operator arranged in
+increasing order.
 
 \chapter{Epilogue}
 \section{Future Prospects}
