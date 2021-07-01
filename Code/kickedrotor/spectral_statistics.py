@@ -104,6 +104,32 @@ def ratioSurmiseCSE(r):
     Z = 4 * np.pi / (729 * np.sqrt(3))
     return (1/Z) * (r + r**2)**4 / (1 + r + r**2)**7
 
+def removeDegeneracies(values, tol):
+    """
+    Returns the values with the degeneracies i.e. duplicates
+    removed in ascending order. Duplicate checking is done
+    within an tolerance of `tol`. Also returns the ratio of
+    number of unique values to the number of initial values.
+
+    """
+    values_sorted = np.sort(values)
+    diff_index = np.append(True, np.diff(values_sorted))
+    values_unique = values_sorted[diff_index > tol]
+    ratio = values_unique.shape[0] / values.shape[0]
+    return values_unique, ratio
+
+def plotDensity(values, ax):
+    """
+    Plots the distribution of states and returns the
+    density of states of the given `values`. `values`
+    may either be eigenvalues or eigenphases.
+    """
+    density = len(values) / (values.max() - values.min())
+    ax.hist(values, density=True, bins=100,
+        histtype="step")
+    ax.set_xlabel(r"$\lambda$")
+    ax.set_ylabel(r"$\rho(\lambda)$")
+
 
 def plotRatios(ratios, ax):
     # lims = (ratios.min(), ratios.max())

@@ -10,7 +10,7 @@ from scipy.integrate import nquad
 
 K = 6.36
 HBAR = 2.85
-ALPHA = 0
+ALPHA = 0.5
 
 def f(t1, t2, t3):
     kick = - (K/HBAR) * np.cos(t1) * (1 + ALPHA * np.cos(t2) * np.cos(t3))
@@ -52,11 +52,11 @@ def test(m1, m2, m3):
     fourier = fourier_coeffs[m3+32, m1+32, m2+32]
     integral, abserr = findIntegral(m1, m2, m3)
     diff = np.abs(fourier - integral)
-    if diff > 1e-10:
-        print(f"Problem at {(m1, m2, m3)}")
-        print(f"From Fourier: {fourier}")
-        print(f"From Integral: {integral}")
-        print("Difference:", np.abs(fourier - integral))
+    # if diff > 1e-10:
+    print(f"Problem at {(m1, m2, m3)}")
+    print(f"From Fourier: {fourier}")
+    print(f"From Integral: {integral}")
+    print("Difference:", np.abs(fourier - integral))
     # print("(2 pi)**3 =", (2*np.pi)**3)
 
 def main():
@@ -75,4 +75,4 @@ def plotFourier(fourier_coeffs):
 
 if __name__ == "__main__":
     # main()
-    test(0, 1, -20)
+    test(0, 1, -1)

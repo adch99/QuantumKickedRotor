@@ -12,12 +12,12 @@ sns.set()
 # HBAR = 1.0545718e-34
 HBAR = 1
 TAU = 1 * HBAR
-K = 9 / HBAR
+K = 5 / HBAR
 DELTAK = 0 # 1e-2 / HBAR
 DELTATAU = 0 #1e-2 / HBAR
 
 # Program Constants
-N = 1000
+N = 2000
 DIM = 2*N + 1 # [-N, N]
 EPSILON = 1e-9
 SAMPLES = 1
@@ -118,8 +118,10 @@ def denseFloquetOperator(deltak=0, deltatau=0):
     tau = TAU + deltatau
     k = K + deltak
     n = np.arange(-N, N+1)
-    colgrid, rowgrid = np.meshgrid(n, n)
-    F = np.exp(-1j * tau * colgrid**2 / 2) * jv(colgrid - rowgrid, -k) * (1j)**(colgrid - rowgrid)
+    mm, nn = np.meshgrid(n, n, indexing="ij")
+    F = np.exp(-1j * tau * nn**2 / 2) \
+        * jv(nn - mm, -k) \
+        * (1j)**(nn - mm)
 
     return F
 
