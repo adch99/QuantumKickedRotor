@@ -9,6 +9,7 @@
 \usepackage{float}
 \usepackage{biblatex}
 \usepackage{svg}
+\usepackage[section]{placeins}
 
 \graphicspath{{./img/}}
 \addbibresource{Readings.bib}
@@ -437,6 +438,25 @@ number of values not density.}
     \centering
     \includegraphics[width=\linewidth]{kickedrotor_spectrum_K9.0_magnified_suppressed.pdf}
 \end{figure}
+
+\newpage
+\section{June 20, 2021}
+
+\begin{equation}
+    H = \frac{P^2}{2} + K cos(\theta) \sum_{n} \delta (t - n\tau)
+\end{equation}
+
+This $H$ is symmetric under time reversal (if we consider only $t = n\tau$).
+It is not rotationally invariant but it has spin 0, therefore, it falls in the
+orthogonal symmetry class. But the Hamiltonian also has parity symmetry:
+$\theta \to -\theta$, $P \to -P$. And so does the floquet operator. So we have
+$[\Pi, F] = 0$. This complicates matters for us as the spectral statistics
+needs to happen on the same quantum numbers. So we need to find a way to obtain
+eigenvalues of only even or only odd eigenstates of $F$. There are issues with
+this as the eigenvalue convergence is better than the eigenvector
+convergence. For $DIM = 2001$ etc, the eigenvectors found are not so accurate
+that we can be sure that they are either even or odd. Most of them are neither.
+
 \nocite{*}
 \printbibliography
 

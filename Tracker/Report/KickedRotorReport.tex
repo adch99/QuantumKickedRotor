@@ -56,7 +56,7 @@ The quantum kicked rotor is defined by the Hamiltonian:
 H = \frac{p^2}{2} + k cos(\theta) \sum_{n \in \mathbb{Z}} \delta(t - n\tau)
 \end{equation}
 
-This classical analog of this system reduces to the Chirikov standard map
+This classical analogue of this system reduces to the Chirikov standard map
 \cite{stockmann}:
 
 \begin{align}
@@ -71,9 +71,9 @@ seen qualitatively by looking at \ref{eq:classicalmap}. When $p_n$ becomes
 larger than $2\pi$, which will happen after a few kicks if $k$ is large,
 then the successive $\theta_n$ will become uncorrelated. As the sign of
 $sin(\theta_n)$ becomes random, the sequence ${p_n}$ describes a random walk.
-This can be backed by a quantitative calculation which shows that the
-the distribution $f_N(p)$ i.e. the distribution of momentum after N steps
-wrt different initial conditions ($\theta_0$) is well approximated by a
+This can be backed by a quantitative calculation which shows that
+the distribution $f_N(p)$, i.e. the distribution of momentum after N steps
+wrt different initial conditions ($\theta_0$), is well approximated by a
 gaussian distribution with a diffusion constant \cite{stockmann}:
 \begin{equation}
     D = \frac{k^2}{2}
@@ -99,13 +99,13 @@ $p \ket{n} = \hbar n \ket{n}; \braket{\theta | n} = e^{in\theta}$, we get:
 \end{equation}
 
 We can use this expression for the floquet matrix to simulate the quantum
-kicked rotor system as $F^N \ket{\psi(0)} = \ket{\psi(N\tau)}$. Even though,
+kicked rotor system as $F^N \ket{\psi(0)} = \ket{\psi(N\tau)}$. Even though
 the system doesn't have stationary states, we can obtain floquet eigenstates
 by diagonalising the floquet operator.
 
 An important variant of the kicked rotor system is the quasiperiodic kicked
 rotor, which is discussed further in the report. It is given by the
-hamiltonian:
+Hamiltonian:
 
 \begin{equation}
 H = \frac{p^2}{2} + \mathcal{K}(t) cos(\theta)\sum_{n \in \mathbb{Z}}
@@ -118,12 +118,12 @@ cos(\omega_3 t + \phi_3))$.
 \chapter{Readings and Work Done}
 \section{Localisation}
 The quantum kicked rotor also shows the same diffusion mechanism as the
-classical analog in the beginning. If we take the initial state as $\ket{0}$
+classical analogue in the beginning. If we take the initial state as $\ket{0}$
 which has a uniform distribution of $\theta's$, then the system shows a
 gaussian shape in the momentum space. But after a certain time, the
 diffusion is suppressed by quantum effects which lead to an exponential
 localisation in the momentum space distribution around $\ket{0}$. This
-phenomenon is called `dynamical localisation'. It is analogous to the
+phenomenon is called `dynamical localisation'. It is analogueous to the
 Anderson localisation found in tight-binding systems.
 
 We now simulate the system using $\ket{\psi(N\tau)} = F^N \ket{0}$. The
@@ -143,7 +143,7 @@ So why does localisation occur? Qualitatively speaking, after certain
 number of timesteps we see destructive interference happening for
 the transition amplitudes (i.e. the probability of $\ket{m} = F\ket{n}$)
 when we calculate the expectation $\langle p^2 \rangle$. For a more
-quantitate argument, the reader is encouraged to see section 4.2.1 of
+quantitative argument, the reader is encouraged to see section 4.2.1 of
 \cite{stockmann}.
 
 A different way to see the emergence of localisation is through a nonlinear
@@ -161,7 +161,7 @@ Then we obtain the floquet operator:
     \text{where } & J_n = \frac{1}{2\pi} \int_0^{2\pi} e^{-iV(\theta)}
     e^{in\theta} d\theta
 \end{align}
-Then we consider the eigenvector $\mathbf{a}$ of $F$ with eigenphase $\phi$
+We consider the eigenvector $\mathbf{a}$ of $F$ with eigenphase $\phi$
 and use the mapping $W(\theta) = -tan(V(\theta) / 2)$ and $\bar{\mathbf{a}}
 = (e^{i(\phi - K)} + 1)\mathbf{a}$. Then we obtain:
 \begin{equation}
@@ -443,7 +443,7 @@ $\epsilon = 0.413 \to 0.462$. \cite{lemarie_universality_2009}
 This phase transition has been studied in detail and the author
 sought to reproduce the results from \cite{lemarie_universality_2009}.
 \cite{lemarie_universality_2009} uses single parameter scaling theory
-to utilize simulation data to evaluate properties of the critical
+to utilise simulation data to evaluate properties of the critical
 point of the transition in order to mitigate finite time effects.
 The quantity $\Lambda = \langle (p/\hbar)^2 \rangle t^{-2/3}$ is
 the relevant scaling parameter for this transition. The average in
@@ -454,15 +454,17 @@ We could not however, reproduce the scale of the computation
 done in the paper as it requires computational resources not
 available to us (40,000 timesteps are a tad bit out of our reach
 we must say). Nevertheless, we have presented the results
-from this computation done to best of our resources.
+from this computation done to best of our resources in Figure
+\ref{fig:scalingparam}.
 
 \begin{figure}[t]
     \includegraphics[width=\linewidth]{img/quasiperiodic_scalingparam.png}
     \caption{The left plot shows the variation of the scaling parameter
-    $\Lambda$ with k. Each of the lines represents one timestep. The point
-    of intersection is the critical point. The transition is known to occur
-    at $k_c = 6.36$ \cite{lemarie_universality_2009}. The right plot shows
-    how $\Lambda$ changes with time for different values of k sampled.}
+    $\Lambda$ with k. Each of the lines represents one timestep, darker
+    purple lines are from later timesteps while orange ones are earlier.
+    The point of intersection is the critical point. The transition is known
+    to occur at $k_c = 6.36$ \cite{lemarie_universality_2009}. The right plot
+    shows how $\Lambda$ changes with time for different values of k sampled.}
     \label{fig:scalingparam}
 \end{figure}
 
@@ -554,10 +556,10 @@ where $\bar{d}$ is the mean level spacing. For systems where the local
 density of states varies a lot, an `unfolding' procedure may be required to
 obtain this. We will not need it and hence, do not describe it.
 
-It can be shown that if the classical analog of the system is integrable,
+It can be shown that if the classical analogue of the system is integrable,
 then the eigenvalues of the matrix are uncorrelated and thus the spacings
 form a Poisson distribution \cite{stockmann}\cite{mehta_random_2004}. The
-systems which have a chaotic classical analog will fall into one of the 3
+systems which have a chaotic classical analogue will fall into one of the 3
 mentioned ensembles: GOE (if the system has time inversion invariance and
 and rotational invariance), GSE (if the system is time inversion invariant
 but not rotationally invariant) and GUE (in all other cases). A complicated
@@ -578,7 +580,7 @@ therefore we cannot apply this analysis to it. However, it turns out that
 we can use the same strategy on the eigenenergies. These are the phase
 angles of the eigenvalues of the floquet matrix. It turns out that their
 distribution is nearly identical to the guassian ensembles' eigenvalues.
-Therefore, there exist analogs of each of the ensembles called COE
+Therefore, there exist analogues of each of the ensembles called COE
 (Circular Orthogonal Ensemble), CUE (Circular Unitary Ensemble) and
 CSE (Circular Symplectic Ensemble). Since the space of these phases is
 compact $[0, 2\pi)$, we also avoid complications with unfolding as the

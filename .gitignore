@@ -11,6 +11,9 @@ Code/build
 *.so
 Code/cython_debug
 
+# Ignore the build files in docs
+Code/docs
+
 
 # Ignore all files in the Tracker directory
 Tracker/*
