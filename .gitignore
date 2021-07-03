@@ -9,12 +9,24 @@ __pycache__/ # Don't include any pycache dirs
 Code/build
 *.c
 *.so
+Code/cython_debug
+
+# Ignore the build files in docs
+Code/docs
 
 
 # Ignore all files in the Tracker directory
 Tracker/*
-# Except tex, bib, pdf and pptx files
+Tracker/Report/*
+Tracker/Report/build/*
+# Except tex, bib, pdf, md and pptx files
 !Tracker/*.tex
 !Tracker/*.bib
 !Tracker/*.pdf
 !Tracker/*.pptx
+!Tracker/*.md
+!Tracker/img
+!Tracker/Report/img
+!Tracker/Report/*.tex
+!Tracker/Report/*.bib
+!Tracker/Report/*.pdf

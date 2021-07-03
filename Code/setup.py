@@ -2,12 +2,16 @@ from setuptools import setup, Extension
 from Cython.Build import cythonize
 
 ext_modules = [
-    Extension("kickedrotor.bipartite_entanglement_windows",
-            sources=["kickedrotor/bipartite_entanglement_windows.pyx"],
+    Extension("kickedrotor.quasiperiodic_rotor_3d",
+            sources=["kickedrotor/quasiperiodic_rotor_3d.pyx"],
             libraries=["m"],
             extra_compile_args=["/openmp"],
             extra_link_args=["/openmp", "complex"])
 ]
+
+compiler_directives = {
+    "language_level": 3
+}
 
 config = {
     "description": "Calculates bipartite entanglement in quasiperiodic kicked rotor",
@@ -18,8 +22,9 @@ config = {
     "packages": ["kickedrotor"],
     "scripts": [],
     "name": 'Quasiperiodic Kicked Rotor Entanglement',
-    "ext_modules": cythonize(ext_modules, annotate=True),
-    "zip_safe": False,
+    "ext_modules": cythonize(ext_modules, annotate=True, gdb_debug=True,
+                                compiler_directives=compiler_directives),
+    "zip_safe": False
 }
 
 setup(**config)

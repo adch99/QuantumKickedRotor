@@ -3,34 +3,29 @@ import scipy.fft as fft
 from scipy.sparse import csr_matrix
 from scipy.sparse.linalg import eigs as speigs
 from scipy.special import jv
+from scipy.integrate import nquad
+import matplotlib.pyplot as plt
 from kickedrotor import bipartite_entanglement as rotor
+from kickedrotor.params import *
 
-HBAR = 1
-K = 5
-ALPHA = 0.1
-OMEGA2 = 0.9
-OMEGA3 = 1.2
-N = 8
-DIM = 2*N + 1
-EPSILON = 1e-6
 
-def test_initialstate():
-    main_vunit = np.ones((DIM, DIM)) / DIM
-    zero_vunit = np.zeros((DIM, DIM))
+def notest_initialstate():
+    main_vunit = np.ones(DIM**2) / DIM
+    zero_vunit = np.zeros(DIM**2)
     units = (zero_vunit,)*N + (main_vunit,) + (zero_vunit,)*N
-    state = np.vstack(units).reshape(DIM, DIM, DIM)
+    state = np.hstack(units)
     obtained_state = rotor.getInitialState()
-    np.testing.assert_almost_equal(state, obtained_state)
+    np.testing.assert_allclose(state, obtained_state)
     # print(result)
 
-def test_fourier():
+def notest_fourier():
     y = rotor.getKickFourierCoeffs(rotor.kickFunction)
     y_raw = fft.ifftshift(y)
     x = fft.ifftn(y_raw, norm="ortho")
     theta = np.arange(2*DIM) * 2 * np.pi / (2*DIM)
     theta1, theta2, theta3 = np.meshgrid(theta, theta, theta)
     expected = rotor.kickFunction(theta1, theta2, theta3)
-    np.testing.assert_almost_equal(x, expected, decimal=6)
+    np.testing.assert_allclose(x, expected)
 
 def test_entropy():
     # Testing for pure state
@@ -41,55 +36,71 @@ def test_entropy():
     # Testing for completely mixed state
     x = np.eye(10) / 10
     entropy = rotor.getEntanglementEntropy(x)
-    np.testing.assert_almost_equal(-np.log(0.1), entropy)
+    np.testing.assert_allclose(-np.log(0.1), entropy)
 
 def test_partialTrace():
     rho1 = np.diag(np.arange(DIM) / np.sum(np.arange(DIM)))
     rho2 = np.ones((DIM, DIM)) / DIM
     rho3 = np.zeros((DIM, DIM))
-    rho3[0, 0] = 1
-
-    rho = np.tensordot(np.tensordot(rho1, rho2, axes=0), rho3, axes=0)
+    rho3[0, 0] = 0.5
+    rho3[1, 1] = 0.5
+    rho = np.kron(np.kron(rho1, rho2), rho3)
     # print("rho.shape before reshape:", rho.shape)
     rho = rho.reshape(DIM**3, DIM**3)
     obtained_rho1 = rotor.partialTrace(rho)
-    np.testing.assert_almost_equal(obtained_rho1, rho1)
-    np.testing.assert_almost_equal(np.trace(obtained_rho1),1)
+    np.testing.assert_allclose(obtained_rho1, rho1)
+    np.testing.assert_allclose(np.trace(obtained_rho1),1)
 
-def prepareProjector(phi2, phi3):
-    m = np.arange(-N, N+1)
-    state2 = np.exp(-1j * phi2 * m) / np.sqrt(N)
-    state3 = np.exp(-1j * phi3 * m) / np.sqrt(N)
-    state = np.tensordot(state2, state3, axes=0)
-    projector = np.tensordot(np.eye(DIM), np.outer(state, state), axes=0)
-    return projector.reshape(DIM**3, DIM**3)
 
-# def denseFloquetOperator(phi2, phi3):
-#     # Kick strength is k (1 + α cos(ω_2) cos(ω3))
-#     kick_strength = K * (1 + ALPHA * np.cos(OMEGA2 + phi2) \
-#                     * np.cos(OMEGA3 + phi3))
-#     n = np.arange(-N, N+1)
-#     colgrid, rowgrid = np.meshgrid(n, n)
-#     F = np.exp(-1j * HBAR * colgrid**2 / 2) \
-#         * jv(colgrid - rowgrid, -kick_strength / HBAR) \
-#         * (1j)**(colgrid - rowgrid)
-#     return F
-#
-# def get1dFloquetOperator(t, base_strength, **params):
-#     F = denseFloquetOperator(t, base_strength, **params)
-#     F[np.abs(F) < EPSILON] = 0
-#     return F.astype(np.complex64)
-#
+def kickFunction1dRotor(theta1, theta2, theta3):
+    return np.exp(-1j * K * np.cos(theta1) / HBAR)
+
+def notest_fourierBessel():
+    fourier_coeffs = rotor.getKickFourierCoeffs(kickFunction1dRotor)
+    fourier_sum = np.sum(fourier_coeffs, axis=(1,2)) / (2*DIM - 1)
+    p = np.arange(-2*N, 2*N)
+    expected = 2 * np.pi * (1j)**(-p) * jv(-p, -K / HBAR)
+
+    np.testing.assert_allclose(fourier_sum, expected)
+
+def notest_floquet():
+    F, Fh = rotor.getFloquetOperator()
+    del Fh
+    m1, m2, m3 = (1, 3, 0)
+    n1, n2, n3 = (-1, 2, 1)
+    q1, q2, q3 = (m1-n1, m2-n2, m3-n3)
+    m = (m1 + N) * DIM**2 + (m2 + N) * DIM + (m3 + N)
+    n = (n1 + N) * DIM**2 + (n2 + N) * DIM + (n3 + N)
+
+    def integrand_real(t1, t2, t3):
+        kick = -(K / HBAR) * np.cos(t1) * (1 + ALPHA * np.cos(t2) * np.cos(t3))
+        kernel = -(q1*t1 + q2*t2 + q3*t3)
+        return np.cos(kick + kernel)
+
+    def integrand_imag(t1, t2, t3):
+        kick = -(K / HBAR) * np.cos(t1) * (1 + ALPHA * np.cos(t2) * np.cos(t3))
+        kernel = -(q1*t1 + q2*t2 + q3*t3)
+        return np.sin(kick + kernel)
+
+    ranges = [(0, 2*np.pi), (0, 2*np.pi), (0, 2*np.pi)]
+
+    result_real, err_real = nquad(integrand_real, ranges)
+    result_imag, err_imag = nquad(integrand_imag, ranges)
+    result = (result_real + 1j*result_imag) / (2 * np.pi)**3
+    result *= np.exp(-1j * (HBAR * n1**2 / 2 + n2*OMEGA2 + n3*OMEGA3))
+    err = (err_real**2 + err_imag**2)**0.5
+
+    np.testing.assert_allclose(F[m, n], result, atol=EPSILON/2, rtol=EPSILON/2)
+
+
+# def test_complexExp():
+#     x = np.linspace(0, 2*np.pi, 100)
+#     y = rotor.complex_exp(x)
+#     expected = np.cos(x) + 1j*np.sin(x)
+#     np.testing.assert_allclose(y, expected)
+
 # def test_floquetOperator():
 #     F, Fh = rotor.getFloquetOperator()
-#     projector_right = prepareProjector(0, 0)
-#     projector_left = prepareProjector(OMEGA2, OMEGA3)
-#     obtained_F1d = csr_matrix.dot(projector_left, F.dot(projector_right))
-#     expected_F1d = get1dFloquetOperator(0, 0)
-#     np.testing.assert_almost_equal(obtained_F1d, expected_F1d)
-
-def test_floquetOperator():
-    F, Fh = rotor.getFloquetOperator()
-    k = 5 # k < DIM**3 - 1
-    eigvals, eigvecs = speigs(F, k=k)
-    np.testing.assert_almost_equal(np.abs(eigvals), np.ones(k))
+#     k = 5 # k < DIM**3 - 1
+#     eigvals, eigvecs = speigs(F, k=k)
+#     np.testing.assert_allclose(np.abs(eigvals), np.ones(k))
