@@ -19,11 +19,12 @@ Code/docs
 Tracker/*
 Tracker/Report/*
 Tracker/Report/build/*
-# Except tex, bib, pdf and pptx files
+# Except tex, bib, pdf, md and pptx files
 !Tracker/*.tex
 !Tracker/*.bib
 !Tracker/*.pdf
 !Tracker/*.pptx
+!Tracker/*.md
 !Tracker/img
 !Tracker/Report/img
 !Tracker/Report/*.tex

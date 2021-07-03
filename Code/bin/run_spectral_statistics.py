@@ -15,8 +15,8 @@ import kickedrotor.random_matrix_sampling as rmt
 
 
 sns.set()
-N = 1000
-DIM = 2*N + 1
+# N = 1000
+# DIM = 2*N + 1
 
 F = rotor.denseFloquetOperator()
 # rmt.checkUnitarity(F)
@@ -35,8 +35,6 @@ if F_type == "circular":
         spacings, ratios = spectral.getSpacingRatios(phases_unique)
     else:
         spacings, ratios = spectral.getSpacingRatios(phases)
-    fig, ax = plt.subplots()
-    spectral.plotDensity(phases, ax)
 
 elif F_type == "gaussian":
     eigvals = np.sort(linalg.eigvalsh(F))
@@ -54,13 +52,14 @@ num_infs = np.count_nonzero(np.isinf(ratios))
 print(f"Discarding {num_infs} ratios as they are infs.")
 np.nan_to_num(ratios, copy=False, nan=-1, posinf=-1, neginf=-1)
 
-fig, (ax1, ax2) = plt.subplots(nrows=2, ncols=1, figsize=(8, 8))
+fig, (ax1, ax2) = plt.subplots(nrows=1, ncols=2, figsize=(8, 4.5))
 spectral.plotRatios(ratios, ax=ax1)
 spectral.plotSpacings(spacings, ax=ax2)
 # ax1.set_ylim(0, 1.1)
 # ax2.set_ylim(0, 1.1)
 fig.suptitle(f"Quantum Kicked Rotor (K = {rotor.K})")
 # fig.suptitle(f"Quasiperiodic Kicked Rotor (K = {params.K}, Alpha = {params.ALPHA})")
-plt.savefig(f"plots/kickedrotor_spectrum_K{rotor.K}_changed.pdf")
+plt.savefig(f"plots/quantum_kicked_rotor_N{rotor.N}_K{rotor.K}_spacing_ratios.pdf")
+plt.savefig(f"plots/quantum_kicked_rotor_N{rotor.N}_K{rotor.K}_spacing_ratios.svg")
 # plt.savefig(f"plots/quasiperiodic_kickedrotor_spectrum_N{params.N}_K{params.K}_ALPHA{params.ALPHA}_HBAR{params.HBAR}.pdf")
 plt.show()
