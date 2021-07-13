@@ -91,5 +91,5 @@ def checkUnitarity(F):
     print("Mean diff:", np.mean(diff))
     norm = mpl.colors.SymLogNorm(linthresh=1e-9, vmin=obs_abs.min(),
         vmax=obs_abs.max(), base=10)
-    plt.imshow(obs_abs, norm=norm)
+    plt.matshow(obs_abs, norm=norm, cmap="Purples_r")
     plt.colorbar()

@@ -4,9 +4,9 @@ from Cython.Build import cythonize
 ext_modules = [
     Extension("kickedrotor.quasiperiodic_rotor_3d",
             sources=["kickedrotor/quasiperiodic_rotor_3d.pyx"],
-            libraries=["m"],
-            extra_compile_args=["/openmp"],
-            extra_link_args=["/openmp", "complex"])
+            # libraries=["m"],
+            extra_compile_args=["/openmp"])
+            # extra_link_args=["complex"])
 ]
 
 compiler_directives = {
@@ -18,7 +18,7 @@ config = {
     "author": "Aditya Chincholi",
     "author_email": "aditya.chincholi@students.iiserpune.ac.in",
     "version": 0.1,
-    "install_requires": ["numpy", "scipy", "matplotlib", "nose"],
+    "install_requires": ["numpy", "scipy"],
     "packages": ["kickedrotor"],
     "scripts": [],
     "name": 'Quasiperiodic Kicked Rotor Entanglement',

@@ -3,6 +3,9 @@ Code/plots/
 __pycache__/ # Don't include any pycache dirs
 .ipynb_checkpoints/
 *.pyc
+*.pyd
+*.dat
+*.npy
 
 # Ignore all files from Cython as they are
 # not cross-platform

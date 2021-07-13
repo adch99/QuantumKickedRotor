@@ -10,15 +10,22 @@ Purpose: Spectral Statistics
 import numpy as np
 import scipy.linalg as linalg
 import matplotlib.pyplot as plt
+from numba import jit
 import seaborn as sns
 
 CSE_SPACING_CONST = 2**18 / (3**6 * np.pi**3)
 
-def getPhaseSpectrum(F, tol=1e-9, discard=True):
+@jit(nopython=True)
+def getEigenvalues(F, optimize):
+    return np.linalg.eigvals(F)
+
+def getPhaseSpectrum(F, tol=1e-9, discard=True, optimize = False):
     """
     Returns the phases of the eigenvalues of the given unitary matrix.
     """
-    eigs = linalg.eigvals(F)
+    getEigenvalues(np.eye(3), False) # First run to compile the machine code.
+    eigs = getEigenvalues(F, optimize)
+        # del F
     amplitudes = np.abs(eigs)
     phases = np.angle(eigs)
     sort_key = np.argsort(phases)
@@ -165,6 +172,7 @@ def plotSpacings(spacings, ax):
     # bin_width = bins[1] - bins[0]
     # counts = [count/total for count in counts]
     # ax.bar(x=bins, height=counts, width=bin_width, label="Calculated", filled=False)
+    # bins = np.logspace(-10, 1, 96)
 
     ax.hist(spacings, bins=100, density=True,
         range=(0,5), histtype="step", label="Calculated")
@@ -174,5 +182,6 @@ def plotSpacings(spacings, ax):
     ax.plot(s, cse, label="CSE")
     ax.set_xlabel(r"$s$")
     ax.set_ylabel(r"$P(s)$")
+    # ax.set_xscale("log")
     # ax.set_yscale("log")
     ax.legend()

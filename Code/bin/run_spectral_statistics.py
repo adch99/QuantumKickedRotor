@@ -5,10 +5,10 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import scipy.linalg as linalg
 import seaborn as sns
-import kickedrotor.perturbed_quantum_kicked_rotor as rotor
-# import kickedrotor.quasiperiodic_rotor_3d as rotor
+# import kickedrotor.perturbed_quantum_kicked_rotor as rotor
+import kickedrotor.quasiperiodic_rotor_3d as rotor
 # import kickedrotor.spectral_parity_decomposition as pdecomp
-# import kickedrotor.params as params
+import kickedrotor.params as params
 # import kickedrotor.quantum_kicked_rotor_noparity as rotor
 import kickedrotor.spectral_statistics as spectral
 import kickedrotor.random_matrix_sampling as rmt
@@ -18,14 +18,17 @@ sns.set()
 # N = 1000
 # DIM = 2*N + 1
 
-F = rotor.denseFloquetOperator()
+F = rotor.getFloquetOperator()
 # rmt.checkUnitarity(F)
 F_type = "circular"
 remove_degeneracy = True
 deg_tol = 1e-8
+abs_tol = 0.1
 
 if F_type == "circular":
-    phases, eigs, num_discard = spectral.getPhaseSpectrum(F, tol=0.1, discard=True)
+    phases, eigs, num_discard = spectral.getPhaseSpectrum(F, tol=abs_tol,
+                                        discard=True, optimize=True)
+    del F
     print(f"Number of Eigenphases in use = {phases.shape[0]}")
     print(f"Number of Discarded Phases = {num_discard}")
 
@@ -46,7 +49,8 @@ elif F_type == "gaussian":
         spacings, ratios = spectral.getSpacingRatios(eigvals)
 
 else:
-    print("Something is wrong. F_type should be either \"gaussian\" or \"circular\"")
+    print("Something is wrong. F_type should" \
+        + " be either \"gaussian\" or \"circular\"")
 
 num_infs = np.count_nonzero(np.isinf(ratios))
 print(f"Discarding {num_infs} ratios as they are infs.")
@@ -57,9 +61,11 @@ spectral.plotRatios(ratios, ax=ax1)
 spectral.plotSpacings(spacings, ax=ax2)
 # ax1.set_ylim(0, 1.1)
 # ax2.set_ylim(0, 1.1)
-fig.suptitle(f"Quantum Kicked Rotor (K = {rotor.K})")
-# fig.suptitle(f"Quasiperiodic Kicked Rotor (K = {params.K}, Alpha = {params.ALPHA})")
-plt.savefig(f"plots/quantum_kicked_rotor_N{rotor.N}_K{rotor.K}_spacing_ratios.pdf")
-plt.savefig(f"plots/quantum_kicked_rotor_N{rotor.N}_K{rotor.K}_spacing_ratios.svg")
-# plt.savefig(f"plots/quasiperiodic_kickedrotor_spectrum_N{params.N}_K{params.K}_ALPHA{params.ALPHA}_HBAR{params.HBAR}.pdf")
+# fig.suptitle(f"Quantum Kicked Rotor (K = {rotor.K})")
+fig.suptitle(f"Quasiperiodic Kicked Rotor (K = {params.K}, Alpha = {params.ALPHA})")
+# plt.savefig(f"plots/quantum_kicked_rotor_N{rotor.N}_K{rotor.K}_spacing_ratios.pdf")
+# plt.savefig(f"plots/quantum_kicked_rotor_N{rotor.N}_K{rotor.K}_spacing_ratios.svg")
+plt.tight_layout()
+plt.savefig(f"plots/quasiperiodic_kickedrotor_spectrum_N{params.N}_K{params.K}_ALPHA{params.ALPHA}_HBAR{params.HBAR}.pdf")
+plt.savefig(f"plots/quasiperiodic_kickedrotor_spectrum_N{params.N}_K{params.K}_ALPHA{params.ALPHA}_HBAR{params.HBAR}.svg")
 plt.show()

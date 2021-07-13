@@ -44,7 +44,7 @@ def getKickFourierCoeffs(func):
     Returns the 3d fourier coefficient matrix of the function kick(t1, t2, t3).
     """
     theta = np.arange(FSAMPLES) * 2 * np.pi / (FSAMPLES)
-    theta1, theta2, theta3 = np.meshgrid(theta, theta, theta)
+    theta1, theta2, theta3 = np.meshgrid(theta, theta, theta, indexing="ij")
     x = func(theta1, theta2, theta3)
     y = fft.fftshift(fft.fftn(x, norm="forward"))
     return y.astype(DTYPE)
@@ -81,7 +81,7 @@ def getDenseFloquetOperator(fourier_coeffs):
                         for n3 in prange(-N, N+1):
                             angle = (HBAR / 2) * n1**2 + n2 * OMEGA2 + n3 * OMEGA3
                             phase = complex_exp(-angle)
-                            fourier = fourier_view[m3-n3+shift, m1-n1+shift, m2-n2+shift]
+                            fourier = fourier_view[m1-n1+shift, m2-n2+shift, m3-n3+shift]
                             row = (m1 + N) * DIMSQ + (m2 + N) * DIM + (m3 + N)
                             col = (n1 + N) * DIMSQ + (n2 + N) * DIM + (n3 + N)
                             F_view[row, col] = phase * fourier
