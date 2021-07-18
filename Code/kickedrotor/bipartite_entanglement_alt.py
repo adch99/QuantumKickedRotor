@@ -17,48 +17,80 @@ import seaborn as sns
 import kickedrotor.quasiperiodic_rotor_3d as matrix_generator
 
 # Program Constants
-N = 15
+N = 100
 DIM = 2*N + 1
 DTYPE = np.complex128
 DIMF = DIM
-TIMESTEPS = 10
+TIMESTEPS = 80
 
-# Scientific Constants
-K = 3
-ALPHA = 0.1
+# Defaults for the Scientific Constants
+K = 7
+ALPHA = 0.8
 HBAR = 2.85
 OMEGA2 = 2 * np.pi * np.sqrt(5)
 OMEGA3 = 2 * np.pi * np.sqrt(13)
 
-def getMomentumEvolution():
+def getMomentumEvolution(omega2 = OMEGA2, omega3 = OMEGA3, hbar = HBAR, **kwargs):
     """
     Returns a vector for the momentum evolution
     part of the floquet operator i.e.
 
     .. math:: U = exp(-i(p_1^2 / 2 + p_2 \\omega_2 + p_3 \\omega_3)/\\hbar)
 
+    Parameters
+    ----------
+    omega2 : float
+        Classical frequency of the second angular coordinate.
+
+    omega3 : float
+        Classical frequency of the third angular coordinate.
+
+    hbar : float
+        Planck's constant divided by 2pi.
+
     Returns
     --------
     momentum_phases : array_like
         A 1d array that should be elementwise multiplied
-        with the state to give U |state>. `state` should
+        with the state to give U | state>. `state` should
         be in the momentum basis.
     """
     momentum_phases = np.empty(DIM**3, dtype=DTYPE)
-    for m1 in range(-N, N+1):
-        for m2 in range(-N, N+1):
-            for m3 in range(-N, N+1):
-                m = DIM**2 * (m1 + N) + DIM * (m2 + N) + (m3 + N)
-                phase = HBAR * m1**2 / 2 + m2 * OMEGA2 + m3 * OMEGA3
-                momentum_phases[m] = np.exp(-1j * phase)
+    m = np.arange(DIM**3)
+    m1 = (m // DIM**2) - N
+    left = m % DIM**2
+    m2 = (left // DIM) - N
+    m3 = (left % DIM) - N
+    phase = hbar * m1**2 / 2 + m2 * omega2 + m3 * omega3
+    momentum_phases[m] = np.exp(-1j * phase)
     return momentum_phases
 
-def getAngleEvolution():
+    # momentum_phases = np.empty(DIM**3, dtype=DTYPE)
+    # for m1 in range(-N, N+1):
+    #     for m2 in range(-N, N+1):
+    #         for m3 in range(-N, N+1):
+    #             m = DIM**2 * (m1 + N) + DIM * (m2 + N) + (m3 + N)
+    #             phase = hbar * m1**2 / 2 + m2 * omega2 + m3 * omega3
+    #             momentum_phases[m] = np.exp(-1j * phase)
+    # return momentum_phases
+
+def getAngleEvolution(k = K, hbar = HBAR, alpha = ALPHA, **kwargs):
     """
     Returns a vector for the angular evolution
     part of the floquet operator i.e.
 
     .. math:: U = exp(-i K cos(\\theta_1) (1 + \\alpha cos(\\theta_2) cos(\\theta_3)) / \\hbar)
+
+    Parameters
+    ----------
+    k : float
+        The kicking strength amplitude
+
+    hbar : float
+        Plank's constant divided by 2pi.
+
+    alpha : float
+        Coupling coefficient in the kick strength.
 
     Returns
     --------
@@ -71,17 +103,32 @@ def getAngleEvolution():
     # for each of the dimensions.
 
     angle_phases = np.empty(DIMF**3, dtype=DTYPE)
-    for t1 in range(DIMF):
-        for t2 in range(DIMF):
-            for t3 in range(DIMF):
-                t = DIMF**2 * t1 + DIMF * t2 + t3
-                theta1 = 2 * np.pi * t1 / DIMF
-                theta2 = 2 * np.pi * t2 / DIMF
-                theta3 = 2 * np.pi * t3 / DIMF
-                phase = (K / HBAR) * np.cos(theta1) \
-                    * (1 + ALPHA * np.cos(theta2) * np.cos(theta3))
-                angle_phases[t] = np.exp(-1j * phase)
+    t = np.arange(DIM**3)
+    t1 = (t // DIMF**2)
+    left = t % DIMF**2
+    t2 = (left // DIMF)
+    t3 = (left % DIMF)
+
+    theta1 = 2 * np.pi * t1 / DIMF
+    theta2 = 2 * np.pi * t2 / DIMF
+    theta3 = 2 * np.pi * t3 / DIMF
+    phase = (k / hbar) * np.cos(theta1) \
+        * (1 + alpha * np.cos(theta2) * np.cos(theta3))
+    angle_phases[t] = np.exp(-1j * phase)
     return angle_phases
+
+    # angle_phases = np.empty(DIMF**3, dtype=DTYPE)
+    # for t1 in range(DIMF):
+    #     for t2 in range(DIMF):
+    #         for t3 in range(DIMF):
+    #             t = DIMF**2 * t1 + DIMF * t2 + t3
+    #             theta1 = 2 * np.pi * t1 / DIMF
+    #             theta2 = 2 * np.pi * t2 / DIMF
+    #             theta3 = 2 * np.pi * t3 / DIMF
+    #             phase = (k / hbar) * np.cos(theta1) \
+    #                 * (1 + alpha * np.cos(theta2) * np.cos(theta3))
+    #             angle_phases[t] = np.exp(-1j * phase)
+    # return angle_phases
 
 def momentumToAngle(state):
     """
@@ -203,7 +250,7 @@ def getDensityMatrix(state):
     Returns
     -------
     rho : array_like
-        Density matrix of the system corresponding to |state><state|.
+        Density matrix of the system corresponding to | state><state |.
     """
     return np.outer(state, state.conjugate())
 
@@ -259,15 +306,32 @@ def vonNeumannEntropy(rho1):
     rho1 : array_like
         Reduced density matrix after taking partial trace over
         dimensions 2 and 3.
+
+    Returns
+    -------
+    entropy : float
+        von Neumann entropy of `rho1` given by -`rho1` ln(`rho1`).
     """
     eigvals = linalg.eigvals(rho1)
     return np.sum(-xlogy(eigvals, eigvals))
 
-def getEnergy():
+def getEnergy(hbar = HBAR, omega2 = OMEGA2, omega3 = OMEGA3, **kwargs):
     """
     Returns a vector for the getting the expectation value of the energy.
 
-    .. math: sum_{\mathbf{p}} \frac{p_1^2}{2} + p_2 \omega_2 + p_3 \omega_3
+    .. math: sum_{\\mathbf{p}} \\frac{p_1^2}{2} + p_2 \\omega_2 + p_3 \\omega_3
+
+    Parameters
+    ----------
+
+    hbar : float
+        Value of Planck's constant divided by 2pi
+
+    omega2 : float
+        Classical frequency of second angular coordinate.
+
+    omega3 : float
+        Classical frequency of third angular coordinate.
 
     Returns
     --------
@@ -281,7 +345,7 @@ def getEnergy():
         for m2 in range(-N, N+1):
             for m3 in range(-N, N+1):
                 m = DIM**2 * (m1 + N) + DIM * (m2 + N) + (m3 + N)
-                energy_values[m] = HBAR * m1**2 / 2 + m2 * OMEGA2 + m3 * OMEGA3
+                energy_values[m] = hbar * m1**2 / 2 + m2 * OMEGA2 + m3 * OMEGA3
     return energy_values
 
 def getInitialState():
@@ -293,7 +357,7 @@ def getInitialState():
     state : array_like
         1d array representing the initial state in the
         momentum cross-product basis. Currently set to
-        |0> x |S> x |S> where |S> is the uniform
+        | 0> x | S> x | S> where | S> is the uniform
         superposition of all the states.
     """
     state1 = np.zeros(DIM)
@@ -302,64 +366,75 @@ def getInitialState():
     state = np.kron(state1, np.kron(state23, state23))
     return state
 
-def plotEntropies(entropies, ax = None, save = True):
+def plotEntropies(entropies, ax = None, save = True, alpha = ALPHA, k = K,
+    linewidth = 1, **params):
     if ax is None:
         ax = plt.gca()
-    time = np.arange(1, TIMESTEPS+1)
-    ax.plot(time, entropies, marker="o", label=r"$\alpha = $"+f"{ALPHA:.2f}")
+
+    timesteps = entropies.shape[0]
+    time = np.arange(1, timesteps+1)
+    label = r"$\alpha = $" + f"{alpha:.3f} K = {k:.3f}"
+    ax.plot(time, entropies, marker="o", label=label, linewidth = linewidth)
     ax.set_xlabel("t")
     ax.set_ylabel("Entanglement Entropy")
-    ax.set_title("Bipartite Entanglement Entropy in Quasiperiodic Kicked Rotor")
+    ax.set_title("Bipartite Entanglement Entropy")
     ax.legend()
 
     if save:
         plt.tight_layout()
-        plt.savefig(f"plots/quasiperiodic_entropies_N{N}_ALPHA{ALPHA:.3f}.pdf")
-        plt.savefig(f"plots/quasiperiodic_entropies_N{N}_ALPHA{ALPHA:.3f}.svg")
+        plt.savefig(f"plots/quasiperiodic_entropies_N{N}_ALPHA{alpha:.3f}.pdf")
+        plt.savefig(f"plots/quasiperiodic_entropies_N{N}_ALPHA{alpha:.3f}.svg")
 
-def plotEnergies(energies, ax = None, save = True):
+def plotEnergies(energies, ax = None, save = True, alpha = ALPHA, k =K,
+    linewidth = 1, **params):
     if ax is None:
         ax = plt.gca()
-    time = np.arange(1, TIMESTEPS+1)
-    ax.plot(time, energies, marker="o", label=r"$\alpha = $"+f"{ALPHA:.2f}")
+
+    timesteps = energies.shape[0]
+    time = np.arange(1, timesteps+1)
+    label = r"$\alpha = $" + f"{alpha:.3f} K = {k:.3f}"
+    ax.plot(time, energies, marker="o", label=label, linewidth = linewidth)
     ax.set_xlabel("t")
     ax.set_ylabel("Energy")
-    ax.set_title("Energy Evolution of Quasiperiodic Kicked Rotor")
+    ax.set_title("Energy Evolution")
     ax.legend()
 
     if save:
         plt.tight_layout()
-        plt.savefig(f"plots/quasiperiodic_energies_N{N}_ALPHA{ALPHA:.3f}.pdf")
-        plt.savefig(f"plots/quasiperiodic_energies_N{N}_ALPHA{ALPHA:.3f}.svg")
+        plt.savefig(f"plots/quasiperiodic_energies_N{N}_ALPHA{alpha:.3f}.pdf")
+        plt.savefig(f"plots/quasiperiodic_energies_N{N}_ALPHA{alpha:.3f}.svg")
 
 
-def plotMomentum(momentum, ax = None, save = True):
+def plotMomentum(momentum, ax = None, save = True, alpha = ALPHA, k = K,
+    linewidth=1, **params):
     if ax is None:
         ax = plt.gca()
+
     p = np.arange(-N, N+1)
-    ax.plot(p, momentum, marker="o", label=r"$\alpha = $"+f"{ALPHA:.2f}")
+    label = r"$\alpha = $" + f"{alpha:.3f} K = {k:.3f}"
+    ax.plot(p, momentum, marker="o", label=label, linewidth = linewidth)
     ax.set_xlabel(r"$\frac{p}{\hbar}$")
     ax.set_ylabel("P(p)")
     ax.set_yscale("log")
-    ax.set_title("Momentum Distribution of Final State")
+    ax.set_title(r"Momentum Distribution")
     ax.legend()
 
     if save:
         plt.tight_layout()
-        plt.savefig(f"plots/quasiperiodic_momenta_N{N}_ALPHA{ALPHA:.3f}.pdf")
-        plt.savefig(f"plots/quasiperiodic_momenta_N{N}_ALPHA{ALPHA:.3f}.svg")
+        plt.savefig(f"plots/quasiperiodic_momenta_N{N}_ALPHA{alpha:.3f}.pdf")
+        plt.savefig(f"plots/quasiperiodic_momenta_N{N}_ALPHA{alpha:.3f}.svg")
 
-def run(initial_state, timesteps, matrix = False):
+def run(initial_state, timesteps, params, matrix = False):
     state = initial_state
 
     if not matrix: # Main and scalable way of time evolution
-        momentum_phases = getMomentumEvolution()
-        angle_phases = getAngleEvolution()
+        momentum_phases = getMomentumEvolution(**params)
+        angle_phases = getAngleEvolution(**params)
 
     else: # Direct matrix method
         floquet_matrix = matrix_generator.getFloquetOperator()
 
-    energy_values = getEnergy()
+    energy_values = getEnergy(**params)
     # rho = np.empty((DIM**3, DIM**3), dtype=DTYPE)
     rho1 = np.empty((DIM, DIM), dtype=DTYPE)
     entropies = np.empty(timesteps)
@@ -378,7 +453,7 @@ def run(initial_state, timesteps, matrix = False):
         print(f"Trace of rho1 = {np.trace(rho1):.3f}")
         entropies[t] = vonNeumannEntropy(rho1).real
         print(f"At time step {t+1}, we have entropy: {entropies[t]:.3f}")
-        energies[t] = np.dot(energy_values, np.abs(state)**2)
+        energies[t] = np.dot(energy_values, np.abs(state)**2).real
         print(f"At time step {t+1}, we have energy: {energies[t]:.3f}")
 
     final_p1 = np.diag(rho1)
@@ -416,20 +491,32 @@ def compareEvolutions(state, floquet_matrix, momentum_phases, angle_phases,
 
 def main():
     initial_state = getInitialState()
+    params = {
+        "k" : K,
+        "alpha" : ALPHA,
+        "hbar" : HBAR,
+        "omega2" : OMEGA2,
+        "omega3" : OMEGA3
+    }
     final_state, entropies, energies, final_p1 = run(initial_state, TIMESTEPS,
-                                                    matrix = True)
+                                                    params, matrix = False)
 
-    fig, ax = plt.subplots(nrows=2, ncols=2, figsize=(8, 4.5))
-    plotEntropies(entropies, ax = ax[0, 0], save = False)
-    plotEnergies(energies, ax = ax[0, 1], save = False)
-    plotMomentum(final_p1, ax = ax[1, 1], save = False)
+    # fig, ax = plt.subplots(nrows=2, ncols=2, figsize=(8, 4.5))
+    plt.figure(figsize=(8, 4.5))
+    plotEntropies(entropies, save=False, **params)
+    plt.figure(figsize=(8, 4.5))
+    plotEnergies(energies, save=False, **params)
+    plt.figure(figsize=(8, 4.5))
+    plotMomentum(final_p1, save=False, **params)
 
-    plt.tight_layout()
+    # plt.tight_layout()
     # plt.savefig(f"plots/quasiperiodic_plots_N{N}_ALPHA{ALPHA:.3f}_K{K:.1f}.pdf")
     # plt.savefig(f"plots/quasiperiodic_plots_N{N}_ALPHA{ALPHA:.3f}_K{K:.1f}.svg")
 
 if __name__ == "__main__":
-    sns.set()
-    main()
-    plt.close()
-    plt.show()
+    # sns.set()
+    # main()
+    # plt.close()
+    # plt.show()
+    np.testing.assert_allclose(getMomentumEvolution(), getMomentumEvolution_alt())
+    np.testing.assert_allclose(getAngleEvolution(), getAngleEvolution_alt())

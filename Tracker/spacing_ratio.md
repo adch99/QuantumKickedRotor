@@ -153,4 +153,52 @@ being out of range.](img/quasiperiodic_kickedrotor_spectrum_N10_insulator.pdf){ 
 
 ---------------------------------------------------------------------
 
+## Verification
+
+- The program from Delande is a program that simulates the 1d version
+    of the quasiperiodic kicked rotor. That doesn't help me much.
+
+- I tried plotting the energy, entropy, $p_1$-distribution plots for
+    the matrix. But the dimensionality is too low for me to actually
+    see anything. It does look pretty similar to the corresponding
+    plots made by the direct method, but there are slight differences.
+
+- Since I am trusting the direct method, I thought of generating the
+    matrix using that and comparing the two. Now what I'm essentially
+    doing in this is calculating $F \mathbf{e_j}$ and comparing it
+    with the jth column of the matrix generated.
+
+--------------------------------------------------------------------
+
+## Verification
+
+- The two are not as close as one would hope it to be but the error
+    seems to decrease with the size of the matrix. The maximum size
+    I could do on my laptop was [-15, 15]. Unsurprisingly, the
+    difference is maximum near the edges both row-wise and col-wise.
+
+- I also tried generating random states and comparing the difference
+    between the generated outcomes, but I thought the direct matrix
+    comparison was a better metric.
+
+- Matching tolerances: atol = $10^{-5}$, rtol = $10^{-8}$
+
+---------------------------------------------------------------------
+
+![K = 3, $\alpha$ = 0.1](img/quasiperiodic_matrix_N15_max_diff.pdf){ .center height=90% }
+
+---------------------------------------------------------------------
+
+![K = 3, $\alpha$ = 0.1](img/quasiperiodic_matrix_N15_mean_diff.pdf){ .center height=90% }
+
+---------------------------------------------------------------------
+
+![K = 3, $\alpha$ = 0.1](img/quasiperiodic_matrix_N15_match_percent.pdf){ .center height=90%}
+
+---------------------------------------------------------------------
+
+![K = 3, $\alpha$ = 0.1](img/quasiperiodic_matrix_N15_unmatched.pdf){ .center height=90% }
+
+---------------------------------------------------------------------
+
 ## References

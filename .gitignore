@@ -6,7 +6,7 @@ __pycache__/ # Don't include any pycache dirs
 *.pyd
 *.dat
 *.npy
-
+*.json
 # Ignore all files from Cython as they are
 # not cross-platform
 Code/build
