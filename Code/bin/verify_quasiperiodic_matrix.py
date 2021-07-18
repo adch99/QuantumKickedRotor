@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-import kickedrotor.bipartite_entanglement_alt as rotor
+import kickedrotor.bipartite_entanglement as rotor
 import kickedrotor.quasiperiodic_rotor_3d as matrix_generator
 from kickedrotor.params import *
 

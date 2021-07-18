@@ -1,9 +1,11 @@
 import numpy as np
 from scipy.special import jv
+from scipy.stats import unitary_group
 import kickedrotor.quantum_kicked_rotor_noparity as noparity
 import kickedrotor.perturbed_quantum_kicked_rotor as parity
 
 def test_total():
+    assert parity.DIM == noparity.DIM, "DIM's in parity and no-parity should be equal"
     expected = parity.denseFloquetOperator()
     observed = noparity.floquetMatrix(beta = 0, hbar = 1, tau = 1, k = 5)
     # print(observed / expected)
@@ -32,8 +34,8 @@ def test_fourier():
 def test_unitarity():
     F = noparity.floquetMatrix()
     F_h = (F.T).conjugate()
-    observed = np.dot(F_h, F)
+    observed = F.dot(F_h)
     expected = np.eye(noparity.DIM)
     diff = np.abs(observed - expected)
     print(f"Max diff: {diff.max()}\tMean diagonal diff: {np.mean(np.diag(diff))}")
-    np.testing.assert_allclose(observed, expected, atol=1e-7)
+    np.testing.assert_allclose(np.zeros(F.shape), diff, atol=1e-7)

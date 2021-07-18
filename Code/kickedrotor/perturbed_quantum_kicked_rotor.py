@@ -17,7 +17,7 @@ DELTAK = 0 # 1e-2 / HBAR
 DELTATAU = 0 #1e-2 / HBAR
 
 # Program Constants
-N = 2000
+N = 1000
 DIM = 2*N + 1 # [-N, N]
 EPSILON = 1e-9
 SAMPLES = 1

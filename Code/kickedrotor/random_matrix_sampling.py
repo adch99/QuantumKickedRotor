@@ -89,6 +89,7 @@ def checkUnitarity(F):
     obs_abs = np.abs(obs)
     print("Mean obs:", np.mean(np.diag(obs_abs)))
     print("Mean diff:", np.mean(diff))
+    print("Max diff:", diff.max())
     norm = mpl.colors.SymLogNorm(linthresh=1e-9, vmin=obs_abs.min(),
         vmax=obs_abs.max(), base=10)
     plt.matshow(obs_abs, norm=norm, cmap="Purples_r")

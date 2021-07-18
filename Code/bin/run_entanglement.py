@@ -8,7 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from cycler import cycler
 import seaborn as sns
-import kickedrotor.bipartite_entanglement_alt as rotor
+import kickedrotor.bipartite_entanglement as rotor
 
 def plotEnergyDiffs(energy_diffs, k_vals, timesteps, ax, critical_index):
     k_lowers = k_vals[:-1]

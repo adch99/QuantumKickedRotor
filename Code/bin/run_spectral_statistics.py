@@ -5,8 +5,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import scipy.linalg as linalg
 import seaborn as sns
-# import kickedrotor.perturbed_quantum_kicked_rotor as rotor
-import kickedrotor.quasiperiodic_rotor_3d as rotor
+import kickedrotor.perturbed_quantum_kicked_rotor as rotor
+# import kickedrotor.quasiperiodic_rotor_3d as rotor
 # import kickedrotor.spectral_parity_decomposition as pdecomp
 import kickedrotor.params as params
 # import kickedrotor.quantum_kicked_rotor_noparity as rotor
@@ -18,8 +18,8 @@ sns.set()
 # N = 1000
 # DIM = 2*N + 1
 
-F = rotor.getFloquetOperator()
-# rmt.checkUnitarity(F)
+F = rotor.denseFloquetOperator()
+rmt.checkUnitarity(F)
 F_type = "circular"
 remove_degeneracy = True
 deg_tol = 1e-8
@@ -66,6 +66,6 @@ fig.suptitle(f"Quasiperiodic Kicked Rotor (K = {params.K}, Alpha = {params.ALPHA
 # plt.savefig(f"plots/quantum_kicked_rotor_N{rotor.N}_K{rotor.K}_spacing_ratios.pdf")
 # plt.savefig(f"plots/quantum_kicked_rotor_N{rotor.N}_K{rotor.K}_spacing_ratios.svg")
 plt.tight_layout()
-plt.savefig(f"plots/quasiperiodic_kickedrotor_spectrum_N{params.N}_K{params.K}_ALPHA{params.ALPHA}_HBAR{params.HBAR}.pdf")
-plt.savefig(f"plots/quasiperiodic_kickedrotor_spectrum_N{params.N}_K{params.K}_ALPHA{params.ALPHA}_HBAR{params.HBAR}.svg")
+# plt.savefig(f"plots/quasiperiodic_kickedrotor_spectrum_N{params.N}_K{params.K}_ALPHA{params.ALPHA}_HBAR{params.HBAR}.pdf")
+# plt.savefig(f"plots/quasiperiodic_kickedrotor_spectrum_N{params.N}_K{params.K}_ALPHA{params.ALPHA}_HBAR{params.HBAR}.svg")
 plt.show()

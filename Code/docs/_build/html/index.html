@@ -1,0 +1,521 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Welcome to Kicked Rotor’s documentation! &mdash; Kicked Rotor 1.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="#" class="icon icon-home"> Kicked Rotor
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">Welcome to Kicked Rotor’s documentation!</a></li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+</div>
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">Kicked Rotor</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="#" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Welcome to Kicked Rotor’s documentation!</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <section id="module-kickedrotor.bipartite_entanglement">
+<span id="welcome-to-kicked-rotor-s-documentation"></span><h1>Welcome to Kicked Rotor’s documentation!<a class="headerlink" href="#module-kickedrotor.bipartite_entanglement" title="Permalink to this headline">¶</a></h1>
+<p>This file contains the functions for an alternate
+way of calculating the bipartite entanglement
+entropy between the subspaces of the quasiperiodic
+kicked rotor.</p>
+<p>Most calculations are done in the momentum basis.</p>
+<div class="math notranslate nohighlight">
+\[H = p_1^2/2 + p_2 \omega_2 + p_3 \omega_3 + K cos(\theta_1) [1 + \alpha cos(\theta_2) cos(\theta_3)] \sum_n \delta(t - n)\]</div>
+<p>This is our hamiltonian, and we essentially just simulate
+the time evolution of this system and calculate a few properties
+of the resulting states.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="kickedrotor.bipartite_entanglement.angleToMomentum">
+<span class="sig-prename descclassname"><span class="pre">kickedrotor.bipartite_entanglement.</span></span><span class="sig-name descname"><span class="pre">angleToMomentum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kickedrotor.bipartite_entanglement.angleToMomentum" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>state</strong> (<em>array_like</em>) – 1d array in angle basis.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>state_momentum_basis</strong> – Given state in momentum basis.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>array_like</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kickedrotor.bipartite_entanglement.getAngleEvolution">
+<span class="sig-prename descclassname"><span class="pre">kickedrotor.bipartite_entanglement.</span></span><span class="sig-name descname"><span class="pre">getAngleEvolution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">7</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hbar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.85</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.8</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kickedrotor.bipartite_entanglement.getAngleEvolution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a vector for the angular evolution
+part of the floquet operator i.e.</p>
+<div class="math notranslate nohighlight">
+\[U = exp(-i K cos(\theta_1) (1 + \alpha cos(\theta_2) cos(\theta_3)) / \hbar)\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>k</strong> (<em>float</em>) – The kicking strength amplitude</p></li>
+<li><p><strong>hbar</strong> (<em>float</em>) – Plank’s constant divided by 2pi.</p></li>
+<li><p><strong>alpha</strong> (<em>float</em>) – Coupling coefficient in the kick strength.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>angle_phases</strong> – A 1d array that should be elementwise multiplied
+with the state to give <span class="math notranslate nohighlight">\(U \ket{state}\)</span>. <cite>state</cite> should
+be in the angular basis.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>array_like</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kickedrotor.bipartite_entanglement.getDensityMatrix">
+<span class="sig-prename descclassname"><span class="pre">kickedrotor.bipartite_entanglement.</span></span><span class="sig-name descname"><span class="pre">getDensityMatrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kickedrotor.bipartite_entanglement.getDensityMatrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the density matrix of the system corresponding
+to the pure state.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>state</strong> (<em>array_like</em>) – State vector of the system in momentum basis.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>rho</strong> – Density matrix of the system corresponding to
+<span class="math notranslate nohighlight">\(\ket{state}ra{state}\)</span>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>array_like</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kickedrotor.bipartite_entanglement.getEnergy">
+<span class="sig-prename descclassname"><span class="pre">kickedrotor.bipartite_entanglement.</span></span><span class="sig-name descname"><span class="pre">getEnergy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hbar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.85</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">omega2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">14.049629462081453</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">omega3</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">22.654346798277953</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kickedrotor.bipartite_entanglement.getEnergy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a vector for the getting the expectation value of the energy.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>hbar</strong> (<em>float</em>) – Value of Planck’s constant divided by 2pi</p></li>
+<li><p><strong>omega2</strong> (<em>float</em>) – Classical frequency of second angular coordinate.</p></li>
+<li><p><strong>omega3</strong> (<em>float</em>) – Classical frequency of third angular coordinate.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>energy_values</strong> – A 1d array that should be dotted with the state to
+give the energy of the state. <cite>state</cite> should be in
+the momentum basis.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>array_like</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kickedrotor.bipartite_entanglement.getInitialState">
+<span class="sig-prename descclassname"><span class="pre">kickedrotor.bipartite_entanglement.</span></span><span class="sig-name descname"><span class="pre">getInitialState</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#kickedrotor.bipartite_entanglement.getInitialState" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the initial state of the simulation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>state</strong> – 1d array representing the initial state in the
+momentum cross-product basis. Currently set to
+| 0&gt; x | S&gt; x | S&gt; where | S&gt; is the uniform
+superposition of all the states.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>array_like</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kickedrotor.bipartite_entanglement.getMomentumEvolution">
+<span class="sig-prename descclassname"><span class="pre">kickedrotor.bipartite_entanglement.</span></span><span class="sig-name descname"><span class="pre">getMomentumEvolution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">omega2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">14.049629462081453</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">omega3</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">22.654346798277953</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hbar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.85</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kickedrotor.bipartite_entanglement.getMomentumEvolution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a vector for the momentum evolution
+part of the floquet operator i.e.</p>
+<div class="math notranslate nohighlight">
+\[U = exp(-i(p_1^2 / 2 + p_2 \omega_2 + p_3 \omega_3)/\hbar)\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>omega2</strong> (<em>float</em>) – Classical frequency of the second angular coordinate.</p></li>
+<li><p><strong>omega3</strong> (<em>float</em>) – Classical frequency of the third angular coordinate.</p></li>
+<li><p><strong>hbar</strong> (<em>float</em>) – Planck’s constant divided by 2pi.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>momentum_phases</strong> – A 1d array that should be elementwise multiplied
+with the state to give <span class="math notranslate nohighlight">\(U \ket{state}\)</span>. <cite>state</cite> should
+be in the momentum basis.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>array_like</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kickedrotor.bipartite_entanglement.momentumToAngle">
+<span class="sig-prename descclassname"><span class="pre">kickedrotor.bipartite_entanglement.</span></span><span class="sig-name descname"><span class="pre">momentumToAngle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kickedrotor.bipartite_entanglement.momentumToAngle" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>state</strong> (<em>array_like</em>) – 1d array in momentum basis.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>state_angle_basis</strong> – Given state in angle basis.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>array_like</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kickedrotor.bipartite_entanglement.partialTrace">
+<span class="sig-prename descclassname"><span class="pre">kickedrotor.bipartite_entanglement.</span></span><span class="sig-name descname"><span class="pre">partialTrace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rho</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kickedrotor.bipartite_entanglement.partialTrace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns partial trace over theta2+theta3 space.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>rho</strong> (<em>array_like</em>) – 2d array representing the density matrix in the
+momentum basis.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>rho1</strong> – 2d array representing the reduced density matrix
+corresponding to p1 in momentum basis.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>array_like</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kickedrotor.bipartite_entanglement.performTimeEvolution">
+<span class="sig-prename descclassname"><span class="pre">kickedrotor.bipartite_entanglement.</span></span><span class="sig-name descname"><span class="pre">performTimeEvolution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">momentum_phases</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_phases</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kickedrotor.bipartite_entanglement.performTimeEvolution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the time evolved version of the given
+state corresponding to time evolution by one
+time step i.e. F|psi&gt;.
+The state should be in the momentum basis and
+the returned state will be in the momentum basis
+as well.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>state</strong> (<em>array_like</em>) – 1d array of the state vector in the momentum
+basis.</p></li>
+<li><p><strong>momentum_phases</strong> (<em>array_like</em>) – Diagonal of the momentum part of the floquet
+operator in momentum basis.</p></li>
+<li><p><strong>angle_phases</strong> (<em>array_like</em>) – Diagonal of the angular part of the floquet
+operator in angle basis.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>new_state</strong> – 1d array of the new state vector after time
+evolving <cite>state</cite> by 1 timestep i.e. <span class="math notranslate nohighlight">\(F\ket{state}\)</span>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>array_like</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kickedrotor.bipartite_entanglement.performTimeEvolutionMatrix">
+<span class="sig-prename descclassname"><span class="pre">kickedrotor.bipartite_entanglement.</span></span><span class="sig-name descname"><span class="pre">performTimeEvolutionMatrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">floquet_matrix</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kickedrotor.bipartite_entanglement.performTimeEvolutionMatrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the time evolved version of the given
+state corresponding to time evolution by one
+time step i.e. F|psi&gt;.
+The state should be in the momentum basis and
+the returned state will be in the momentum basis
+as well.
+This differs from <cite>performTimeEvolution</cite> as it
+applies the evolution in two parts: apply the
+diagonal momentum evolution, iFFT to change basis,
+diagonal angular evolution, FFT to change basis back.
+This function just dots the state with the floquet_matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>state</strong> (<em>array_like</em>) – 1d array of the state vector in the momentum
+basis.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>new_state</strong> – 1d array of the new state vector after time
+evolving <cite>state</cite> by 1 timestep i.e. <span class="math notranslate nohighlight">\(F\ket{state}\)</span>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>array_like</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kickedrotor.bipartite_entanglement.reducedDensityMatrix">
+<span class="sig-prename descclassname"><span class="pre">kickedrotor.bipartite_entanglement.</span></span><span class="sig-name descname"><span class="pre">reducedDensityMatrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kickedrotor.bipartite_entanglement.reducedDensityMatrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the reduced density matrix of the theta1 subspace.
+Equivalent to creating the overall density matrix and then
+taking a partial trace over theta2+theta3 subspace.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>state</strong> (<em>array_like</em>) – 1d array representing the state of the system
+in momentum basis (though the basis should not
+matter).</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>rho1</strong> – 2d array representing the reduced density matrix
+of the given state for the theta1 subspace.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>array_like</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kickedrotor.bipartite_entanglement.run">
+<span class="sig-prename descclassname"><span class="pre">kickedrotor.bipartite_entanglement.</span></span><span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timesteps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matrix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kickedrotor.bipartite_entanglement.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs the simulation starting from <cite>initial_state</cite> for
+<cite>timesteps</cite> steps.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>initial_state</strong> (<em>array_like</em>) – Initial state in momentum basis of length <cite>DIM**3</cite>. Should
+be normalised.</p></li>
+<li><p><strong>timesteps</strong> (<em>int</em>) – The number of timesteps for which the simulation should
+be run.</p></li>
+<li><p><strong>params</strong> (<em>dict</em>) – Parameter values for the simulation. Supported keys are
+“hbar”, “omega2”, “omega3”, “k”, “alpha”.</p></li>
+<li><p><strong>matrix</strong> (<em>bool</em>) – If True then the full matrix method is used to run the
+simulation. This is very memory-intensive.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>state</strong> (<em>array_like</em>) – The final state of the system in momentum basis.</p></li>
+<li><p><strong>entropies</strong> (<em>array_like</em>) – The bipartite entanglement entropies for each timestep.</p></li>
+<li><p><strong>energies</strong> (<em>array_like</em>) – The energy values for each timestep.</p></li>
+<li><p><strong>final_p1</strong> (<em>array_like</em>) – Probability distribution of the momentum values for the
+first coordinate (p1).</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kickedrotor.bipartite_entanglement.vonNeumannEntropy">
+<span class="sig-prename descclassname"><span class="pre">kickedrotor.bipartite_entanglement.</span></span><span class="sig-name descname"><span class="pre">vonNeumannEntropy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rho1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kickedrotor.bipartite_entanglement.vonNeumannEntropy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the von Neumann entropy of the given density matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>rho1</strong> (<em>array_like</em>) – Reduced density matrix after taking partial trace over
+dimensions 2 and 3.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>entropy</strong> – von Neumann entropy of <cite>rho1</cite> given by -<cite>rho1</cite> ln(<cite>rho1</cite>).</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<div class="toctree-wrapper compound">
+</div>
+</section>
+<section id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+</section>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Aditya Chincholi.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
