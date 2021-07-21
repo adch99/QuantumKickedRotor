@@ -26,7 +26,7 @@ import seaborn as sns
 import kickedrotor.quasiperiodic_rotor_3d as matrix_generator
 
 # Program Constants
-N = 10
+N = 100
 DIM = 2*N + 1
 DTYPE = np.complex128
 DIMF = DIM
@@ -384,7 +384,7 @@ def plotEntropies(entropies, ax = None, save = True, alpha = ALPHA, k = K,
     timesteps = entropies.shape[0]
     time = np.arange(1, timesteps+1)
     label = r"$\alpha = $" + f"{alpha:.3f} K = {k:.3f}"
-    ax.plot(time, entropies, marker="o", label=label)
+    ax.plot(time, entropies, marker=".", label=label)
     ax.set_xlabel("t")
     ax.set_ylabel("Entanglement Entropy")
     ax.set_title("Bipartite Entanglement Entropy")
@@ -403,7 +403,7 @@ def plotEnergies(energies, ax = None, save = True, alpha = ALPHA, k =K,
     timesteps = energies.shape[0]
     time = np.arange(1, timesteps+1)
     label = r"$\alpha = $" + f"{alpha:.3f} K = {k:.3f}"
-    ax.plot(time, energies, marker="o", label=label)
+    ax.plot(time, energies, marker=".", label=label)
     ax.set_xlabel("t")
     ax.set_ylabel("Energy")
     ax.set_title("Energy Evolution")
@@ -422,7 +422,7 @@ def plotMomentum(momentum, ax = None, save = True, alpha = ALPHA, k = K,
 
     p = np.arange(-N, N+1)
     label = r"$\alpha = $" + f"{alpha:.3f} K = {k:.3f}"
-    ax.plot(p, momentum, marker="o", label=label)
+    ax.plot(p, momentum, marker=".", label=label)
     ax.set_xlabel(r"$\frac{p}{\hbar}$")
     ax.set_ylabel("P(p)")
     ax.set_yscale("log")

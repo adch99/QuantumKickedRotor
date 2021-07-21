@@ -4,6 +4,7 @@ author: Aditya Chincholi
 date: June 28, 2021
 theme: metropolis
 aspectratio: 169
+bibliography: citations.bib
 ...
 
 # Quasiperiodic Kicked Rotor
@@ -132,3 +133,95 @@ $$
 ## Entropy
 
 ![K = 7, $\alpha$ = 0.8](img/quasiperiodic_entropies_N100_ALPHA0.800.pdf){ .center height=70% }
+
+---------------------------------------------------------------
+
+## Multiple K Values
+
+::: nonincremental
+
+- We look at the following plots for the following at different $K, \alpha$
+    values from the insulator to the metallic regime:
+    1. Energy Expectation Value
+    2. Entanglement Entropy
+    3. Momentum Distribution
+
+- To study the changes in the energy and entropy values with K, we have
+    plotted the following quantities:
+    1. Entropy Difference: $S(K_{n+1}, \alpha_{n+1}) - S(K_n, \alpha_n)$ vs t
+    2. Energy Difference: $E(K_{n+1}, \alpha_{n+1}) - E(K_n, \alpha_n)$ vs t
+
+:::
+---------------------------------------------------------------------------
+
+## Multiple K Values
+
+::: nonincremental
+
+- First we take a big picture look with 11 values with $K \in [3.00, 9.72]$
+    and $\alpha \in [0.200, 0.6750]$. Both ranges are centred around the
+    critical point[^1]. Momentum range is -100 to 100 with 80 timesteps.
+
+- Then we look very close to the critical point with 11 values with
+    $K \in [6.30, 6.42]$ and $\alpha \in [0.4000, 0.4750]$. Both ranges
+    are centred around the critical point. Momentum range is -100 to 100
+    with 80 timesteps.
+
+
+
+[^1]: The [@lemarieUniversalityAndersonTransition2009] paper gives the value
+    of K at critical point, but not of $\alpha$.
+
+:::
+
+----------------------------------------------------------------------------
+
+The Big Picture
+
+----------------------------------------------------------------------------
+
+![](img/20210721/quasiperiodic_energies_multik_macro.pdf){ .center }
+
+----------------------------------------------------------------------------
+
+![](img/20210721/quasiperiodic_entropies_multik_macro.pdf){ .center }
+
+----------------------------------------------------------------------------
+
+![](img/20210721/quasiperiodic_momentum_multik_macro.pdf){ .center }
+
+----------------------------------------------------------------------------
+
+![](img/20210721/quasiperiodic_energy_diffs_multik_macro.pdf){ .center }
+
+----------------------------------------------------------------------------
+
+![](img/20210721/quasiperiodic_entropy_diffs_multik_macro.pdf){ .center }
+
+----------------------------------------------------------------------------
+
+The Microscopic Picture
+
+----------------------------------------------------------------------------
+
+![](img/20210721/quasiperiodic_energies_multik_micro.pdf){ .center }
+
+----------------------------------------------------------------------------
+
+![](img/20210721/quasiperiodic_entropies_multik_micro.pdf){ .center }
+
+----------------------------------------------------------------------------
+
+![](img/20210721/quasiperiodic_momentum_multik_micro.pdf){ .center }
+
+----------------------------------------------------------------------------
+
+![](img/20210721/quasiperiodic_energy_diffs_multik_micro.pdf){ .center }
+
+----------------------------------------------------------------------------
+
+![](img/20210721/quasiperiodic_entropy_diffs_multik_micro.pdf){ .center }
+
+----------------------------------------------------------------------------
+
+## References

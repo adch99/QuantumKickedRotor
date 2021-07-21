@@ -44,11 +44,11 @@ omega2 = 2*np.pi * np.sqrt(5)
 omega3 = 2*np.pi * np.sqrt(13)
 hbar = 2.85
 k_critical = 6.36
-k_min = k_critical - 3.36
-k_max = k_critical + 3.36
+k_min = k_critical - 0.06
+k_max = k_critical + 0.06
 alpha_critical = 0.4375
-alpha_min = alpha_critical - 0.2375
-alpha_max = alpha_critical + 0.2375
+alpha_min = alpha_critical - 0.0375
+alpha_max = alpha_critical + 0.0375
 samples = 11 # Must be odd
 timesteps = 80
 
@@ -61,9 +61,8 @@ critical_index = (samples - 1) // 2
 sns.set()
 figs, axs = [], []
 num_figs = 5
-colours = sns.color_palette("husl", 3)
-colour_cycle = cycler(color=[colours[0]]*critical_index \
-                            + [colours[1]] + [colours[2]]*critical_index)
+colours = sns.color_palette("icefire", samples)
+colour_cycle = cycler(color=colours)
 lw_cycle = cycler(linewidth=[1]*critical_index \
                             + [3] + [1]*critical_index)
 prop_cycle = colour_cycle + lw_cycle
@@ -109,7 +108,7 @@ plotEntropyDiffs(entropy_diffs, k_vals, timesteps, axs[4], critical_index)
 basenames = ["energies", "entropies", "momentum", "energy_diffs", "entropy_diffs"]
 for i in range(num_figs):
     figs[i].tight_layout()
-    filename = f"plots/quasiperiodic_{basenames[i]}_N{rotor.N}_T{timesteps}_multiK"
+    filename = f"plots/quasiperiodic_{basenames[i]}_N{rotor.N}_T{timesteps}_multiK_magnified"
     figs[i].savefig(filename+".pdf")
     figs[i].savefig(filename+".svg")
 
