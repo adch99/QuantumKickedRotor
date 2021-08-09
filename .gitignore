@@ -39,3 +39,5 @@ Tracker/Report/build/*
 !Tracker/Report/*.tex
 !Tracker/Report/*.bib
 !Tracker/Report/*.pdf
+
+# Ignore the data output in the data/ directory

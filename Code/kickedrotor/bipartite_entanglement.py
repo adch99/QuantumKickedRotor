@@ -434,6 +434,30 @@ def plotMomentum(momentum, ax = None, save = True, alpha = ALPHA, k = K,
         plt.savefig(f"plots/quasiperiodic_momenta_N{N}_ALPHA{alpha:.3f}.pdf")
         plt.savefig(f"plots/quasiperiodic_momenta_N{N}_ALPHA{alpha:.3f}.svg")
 
+def plotEnergyDiffs(energy_diffs, k_vals, timesteps, ax, critical_index):
+    k_lowers = k_vals[:-1]
+    t = np.arange(1, timesteps+1)
+    for i, energy_diff in enumerate(energy_diffs):
+        label = r"$K_l = $" + f"{k_lowers[i]:.3f}"
+        ax.plot(t, energy_diff, label = label, marker=".")
+    ax.set_xlabel("t")
+    ax.set_ylabel(r"$E_{K_{n+1}}(t) - E_{K_{n}}(t)$")
+    ax.set_title("Energy Difference")
+    ax.legend()
+
+def plotEntropyDiffs(entropy_diffs, k_vals, timesteps, ax, critical_index):
+    k_lowers = k_vals[:-1]
+    t = np.arange(1, timesteps+1)
+    for i, entropy_diff in enumerate(entropy_diffs):
+        label = r"$K_l = $" + f"{k_lowers[i]:.3f}"
+        ax.plot(t, entropy_diff, label = label, marker = ".")
+    ax.set_xlabel("t")
+    ax.set_ylabel(r"$S_{K_{n+1}}(t) - S_{K_{n}}(t)$")
+    ax.set_yscale("log")
+    ax.set_title("Entropy Difference")
+    ax.legend()
+
+
 def run(initial_state, timesteps, params, matrix = False):
     """
     Runs the simulation starting from `initial_state` for
@@ -497,13 +521,13 @@ def run(initial_state, timesteps, params, matrix = False):
         # rho1[:, :] = partialTrace(rho)
 
         rho1 = reducedDensityMatrix(state)
-        print(f"Trace of rho1 = {np.trace(rho1):.3f}")
+        # print(f"Trace of rho1 = {np.trace(rho1):.3f}")
         entropies[t] = vonNeumannEntropy(rho1).real
-        print(f"At time step {t+1}, we have entropy: {entropies[t]:.3f}")
+        # print(f"At time step {t+1}, we have entropy: {entropies[t]:.3f}")
         energies[t] = np.dot(energy_values, np.abs(state)**2).real
-        print(f"At time step {t+1}, we have energy: {energies[t]:.3f}")
+        # print(f"At time step {t+1}, we have energy: {energies[t]:.3f}")
 
-    final_p1 = np.diag(rho1)
+    final_p1 = np.diag(rho1).real
 
     return state, entropies, energies, final_p1
 

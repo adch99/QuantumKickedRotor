@@ -10,52 +10,31 @@ from cycler import cycler
 import seaborn as sns
 import kickedrotor.bipartite_entanglement as rotor
 
-def plotEnergyDiffs(energy_diffs, k_vals, timesteps, ax, critical_index):
-    k_lowers = k_vals[:-1]
-    t = np.arange(1, timesteps+1)
-    for i, energy_diff in enumerate(energy_diffs):
-        label = r"$K_l = $" + f"{k_lowers[i]:.3f}"
-        linewidth = 1
-        if i == critical_index: linewidth = 3
-        ax.plot(t, energy_diff, label = label, marker=".",
-            linewidth = linewidth)
-    ax.set_xlabel("t")
-    ax.set_ylabel(r"$E_{K_{n+1}}(t) - E_{K_{n}}(t)$")
-    ax.set_title("Energy Difference")
-    # ax.legend()
-
-def plotEntropyDiffs(entropy_diffs, k_vals, timesteps, ax, critical_index):
-    k_lowers = k_vals[:-1]
-    t = np.arange(1, timesteps+1)
-    for i, entropy_diff in enumerate(entropy_diffs):
-        linewidth = 1
-        label = r"$K_l = $" + f"{k_lowers[i]:.3f}"
-        if i == critical_index: linewidth = 3
-        ax.plot(t, entropy_diff, label = label, marker = ".",
-            linewidth = linewidth)
-    ax.set_xlabel("t")
-    ax.set_ylabel(r"$S_{K_{n+1}}(t) - S_{K_{n}}(t)$")
-    ax.set_yscale("log")
-    ax.set_title("Entropy Difference")
-    # ax.legend()
-
 # Parameters
-omega2 = 2*np.pi * np.sqrt(5)
-omega3 = 2*np.pi * np.sqrt(13)
+omega2 = 2 * np.pi * np.sqrt(5)
+omega3 = 2 * np.pi * np.sqrt(13)
 hbar = 2.85
 k_critical = 6.36
-k_min = k_critical - 0.06
-k_max = k_critical + 0.06
-alpha_critical = 0.4375
-alpha_min = alpha_critical - 0.0375
-alpha_max = alpha_critical + 0.0375
+k_min = k_critical - 2
+k_max = k_critical + 2
+alpha_critical = 0.4303
+alpha_min = alpha_critical - 0.2
+alpha_max = alpha_critical + 0.2
 samples = 11 # Must be odd
 timesteps = 80
+
+# Data files
+save_data = True
+save_plot = True
+datafile_basename = "data/entanglement_multiK_multiAlpha"
+plotfile_basename = "plots/entanglement_multiK_multiAlpha"
 
 
 
 k_vals = np.linspace(k_min, k_max, samples)
+# k_vals = np.zeros(samples) + k_critical
 alpha_vals = np.linspace(alpha_min, alpha_max, samples)
+# alpha_vals = np.zeros(samples) + alpha_critical
 critical_index = (samples - 1) // 2
 
 sns.set()
@@ -97,19 +76,38 @@ for i in range(samples):
     rotor.plotEntropies(entropies, ax = axs[1], save = False, **params)
     rotor.plotMomentum(final_p1, ax = axs[2], save = False, **params)
 
+for ax in axs[:2]: ax.set_yscale("log")
+
 energy_collection = np.array(energy_collection)
 energy_diffs = np.diff(energy_collection, axis=0)
-plotEnergyDiffs(energy_diffs, k_vals, timesteps, axs[3], critical_index)
+rotor.plotEnergyDiffs(energy_diffs, k_vals, timesteps, axs[3], critical_index)
 
 entropy_collection = np.array(entropy_collection)
 entropy_diffs = np.diff(entropy_collection, axis=0)
-plotEntropyDiffs(entropy_diffs, k_vals, timesteps, axs[4], critical_index)
+rotor.plotEntropyDiffs(entropy_diffs, k_vals, timesteps, axs[4], critical_index)
 
 basenames = ["energies", "entropies", "momentum", "energy_diffs", "entropy_diffs"]
-for i in range(num_figs):
-    figs[i].tight_layout()
-    filename = f"plots/quasiperiodic_{basenames[i]}_N{rotor.N}_T{timesteps}_multiK_magnified"
-    figs[i].savefig(filename+".pdf")
-    figs[i].savefig(filename+".svg")
+
+if save_plot:
+    for i in range(num_figs):
+        figs[i].tight_layout()
+        filename = f"{plotfile_basename}_{basenames[i]}_N{rotor.N}_T{timesteps}"
+        figs[i].savefig(filename+".pdf")
+        figs[i].savefig(filename+".svg")
+
+if save_data:
+    filename = f"{datafile_basename}_N{rotor.N}_T{timesteps}.dat"
+    datafile = open(filename, "w")
+    datafile.write(f"# Timesteps: {timesteps} DIM: {rotor.DIM} Samples: {samples}\n")
+    datafile.write("# K\n")
+    np.savetxt(datafile, k_vals)
+    datafile.write("\n# Alpha\n")
+    np.savetxt(datafile, alpha_vals)
+    datafile.write("\n# Energies\n")
+    np.savetxt(datafile, energy_collection)
+    datafile.write("\n# Entropies\n")
+    np.savetxt(datafile, entropy_collection)
+
+
 
 plt.show()

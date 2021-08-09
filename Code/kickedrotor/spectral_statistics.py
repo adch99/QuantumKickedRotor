@@ -9,13 +9,15 @@ Purpose: Spectral Statistics
 
 import numpy as np
 import scipy.linalg as linalg
+from scipy.stats import linregress
 import matplotlib.pyplot as plt
-from numba import jit
+# from numba import jit
 import seaborn as sns
 
 CSE_SPACING_CONST = 2**18 / (3**6 * np.pi**3)
+GAMMA = np.euler_gamma
 
-@jit(nopython=True)
+# @jit(nopython=True)
 def getEigenvalues(F, optimize):
     return np.linalg.eigvals(F)
 
@@ -25,7 +27,7 @@ def getPhaseSpectrum(F, tol=1e-9, discard=True, optimize = False):
     """
     getEigenvalues(np.eye(3), False) # First run to compile the machine code.
     eigs = getEigenvalues(F, optimize)
-        # del F
+    # del F
     amplitudes = np.abs(eigs)
     phases = np.angle(eigs)
     sort_key = np.argsort(phases)
@@ -51,6 +53,109 @@ def getSpacingRatios(eigenphases):
     spacings = spacings / np.mean(spacings)
     ratios = spacings[1:] / spacings[:-1]
     return spacings, ratios
+
+def getSpacingRatiosTilde(ratios):
+    """
+    Returns the tilde ratios given the spacing ratios
+    of the matrix.
+    """
+    return np.minimum(ratios, 1/ratios)
+
+def getStepFunction(eigenvalues):
+    """
+    Gives the counting step function N(E)
+    N(E) = # of energy levels from 0 to E (E > 0)
+         = # of energy levels from -E to 0 (E < 0)
+
+    Also returns the length L which is half the
+    width of the energy spectrum.
+    Eigenvalues must be presorted.
+    """
+    L = np.max([np.abs(eigenvalues[0]), np.abs(eigenvalues[-1])])
+    midpoint = (eigenvalues[-1] + eigenvalues[0]) / 2
+
+    # Create the step function normally.
+    f = lambda x: sum([np.heaviside(x-E, 0.5) for E in eigenvalues])
+
+    # Now shift it to match our convention
+    N = lambda x: f(x) - f(0)
+
+    return N, L
+
+def getDelta3Statistic(eigenvalues):
+    """
+    Returns the Dyson-Mehta Δ₃ statistic given by
+    Δ₃ = min_{A,B} (1/2L) integral -L to +L [N(E) - A*E - B]^2 dE
+
+    Essentially we fit the level counting function N(E)
+    with a straight line and the statistic is the integral of
+    residuals squared.
+    """
+    N, L = getStepFunction(eigenvalues)
+
+    # Generate points for fitting
+    samples = 10 * eigenvalues.shape[0]
+    x = np.linspace(-L, L, samples)
+    y = N(x)
+
+    # Fit the data to a line
+    # polyfit = np.polynomial.polynomial.Polynomial.fit
+    # coeffs, res_sq_sum, rank, sv, rcond = np.polyfit(x, y, deg = 1, full = True)
+    # [res_sq_sum, rank, sv, rcond] = diagnostics
+    # residuals = y - coeffs[0]*x - coeffs[1]
+
+    result = linregress(x, y)
+    print(f"r: {result.rvalue}\tp: {result.pvalue}")
+    print(f"slope: {result.slope}\tintercept: {result.intercept}")
+
+    plt.scatter(x, y, label="N(x)")
+    plt.plot(x, result.slope*x + result.intercept, label="Fit")
+    plt.legend()
+    plt.show()
+
+    residuals = y - result.slope*x - result.intercept
+    plt.plot(x, residuals, label="residuals")
+    plt.show()
+    delta = np.mean(residuals**2)
+    coeffs = (result.slope, result.intercept)
+
+    return delta, coeffs
+
+def meanDelta3Poisson(s):
+    """
+    Returns the expected (theoretical) value of the Delta_3
+    statistic for the Poisson distribution of level spacings.
+    """
+    return s / 15
+
+def meanDelta3GOE(s):
+    """
+    Returns the expected (theoretical) value of the Delta_3
+    statistic for the GOE ensemble.
+    """
+    return (np.log(2*np.pi*s) + GAMMA - 5/4 - np.pi**2 / 8) / np.pi**2
+
+def meanDelta3GUE(s):
+    """
+    Returns the expected (theoretical) value of the Delta_3
+    statistic for the GUE ensemble.
+    """
+    return (np.log(2*np.pi*s) + GAMMA - 5/4) / (2 * np.pi**2)
+
+def meanDelta3GSE(s):
+    """
+    Returns the expected (theoretical) value of the Delta_3
+    statistic for the GSE ensemble.
+    """
+    return (np.log(4*np.pi*s) + GAMMA - 5/4 + np.pi**2 / 8) / (4 * np.pi**2)
+
+def meanDelta3(s):
+    """
+    Returns the expected (theoretical) values of Delta_3
+    statistic for the Poisson, GOE, GUE and GSE ensembles.
+    """
+    return (meanDelta3Poisson(s), meanDelta3GOE(s),
+        meanDelta3GUE(s), meanDelta3GSE(s))
 
 def spacingPoisson(s):
     """
@@ -145,12 +250,12 @@ def plotRatios(ratios, ax):
     cue = ratioSurmiseCUE(r)
     coe = ratioSurmiseCOE(r)
     cse = ratioSurmiseCSE(r)
-    ax.hist(ratios, density=True, bins=100,
+    ax.hist(ratios, density=True, zorder=5,
         histtype="step", label="Calculated", range=(0, 5))
-    ax.plot(r, poisson, label="Poisson")
-    ax.plot(r, cue, label="CUE")
-    ax.plot(r, coe, label="COE")
-    ax.plot(r, cse, label="CSE")
+    ax.plot(r, poisson, label="Poisson", alpha=0.8, zorder=1, linewidth=1)
+    ax.plot(r, cue, label="CUE/GUE", alpha=0.8, zorder=2, linewidth=1)
+    ax.plot(r, coe, label="COE/GOE", alpha=0.8, zorder=3, linewidth=1)
+    ax.plot(r, cse, label="CSE/GSE", alpha=0.8, zorder=4, linewidth=1)
     ax.set_xlabel(r"$r$")
     ax.set_ylabel(r"$P(r)$")
     # ax.set_yscale("log")
@@ -174,12 +279,12 @@ def plotSpacings(spacings, ax):
     # ax.bar(x=bins, height=counts, width=bin_width, label="Calculated", filled=False)
     # bins = np.logspace(-10, 1, 96)
 
-    ax.hist(spacings, bins=100, density=True,
+    ax.hist(spacings, density=True, zorder=5,
         range=(0,5), histtype="step", label="Calculated")
-    ax.plot(s, poisson, label="Poisson")
-    ax.plot(s, cue, label="CUE")
-    ax.plot(s, coe, label="COE")
-    ax.plot(s, cse, label="CSE")
+    ax.plot(s, poisson, label="Poisson", alpha=0.8, zorder=1, linewidth=1)
+    ax.plot(s, cue, label="CUE/GUE", alpha=0.8, zorder=2, linewidth=1)
+    ax.plot(s, coe, label="COE/GOE", alpha=0.8, zorder=3, linewidth=1)
+    ax.plot(s, cse, label="CSE/GSE", alpha=0.8, zorder=4, linewidth=1)
     ax.set_xlabel(r"$s$")
     ax.set_ylabel(r"$P(s)$")
     # ax.set_xscale("log")

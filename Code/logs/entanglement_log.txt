@@ -1,0 +1,11 @@
+Beginning K = 4.360000 alpha = 0.230
+Beginning K = 4.760000 alpha = 0.270
+Beginning K = 5.160000 alpha = 0.310
+Beginning K = 5.560000 alpha = 0.350
+Beginning K = 5.960000 alpha = 0.390
+Beginning K = 6.360000 alpha = 0.430
+Beginning K = 6.760000 alpha = 0.470
+Beginning K = 7.160000 alpha = 0.510
+Beginning K = 7.560000 alpha = 0.550
+Beginning K = 7.960000 alpha = 0.590
+Beginning K = 8.360000 alpha = 0.630
