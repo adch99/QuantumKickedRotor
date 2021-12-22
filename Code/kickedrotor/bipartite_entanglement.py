@@ -23,18 +23,18 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 # Testing the floquet matrix
-import kickedrotor.quasiperiodic_rotor_3d as matrix_generator
+# import kickedrotor.quasiperiodic_rotor_3d as matrix_generator
 
 # Program Constants
-N = 100
-DIM = 2*N + 1
+DIM = 440
+N = int(DIM / 2)
 DTYPE = np.complex128
 DIMF = DIM
-TIMESTEPS = 80
+TIMESTEPS = 420
 
 # Defaults for the Scientific Constants
-K = 7
-ALPHA = 0.8
+K = 5
+ALPHA = 0.4
 HBAR = 2.85
 OMEGA2 = 2 * np.pi * np.sqrt(5)
 OMEGA3 = 2 * np.pi * np.sqrt(13)
@@ -304,8 +304,8 @@ def reducedDensityMatrix(state):
         of the given state for the theta1 subspace.
     """
     state_reshaped = state.reshape((DIM,)*3)
-    return np.einsum("ikl,jkl->ij", state_reshaped, state_reshaped.conj())
-
+    # return np.einsum("ikl,jkl->ij", state_reshaped, state_reshaped.conj())
+    return np.tensordot(state_reshaped, state_reshaped.conj(), axes=((1, 2), (1, 2)))
 
 def vonNeumannEntropy(rho1):
     """
@@ -351,11 +351,12 @@ def getEnergy(hbar = HBAR, omega2 = OMEGA2, omega3 = OMEGA3, **kwargs):
         the momentum basis.
     """
     energy_values = np.empty(DIM**3, dtype=DTYPE)
-    for m1 in range(-N, N+1):
-        for m2 in range(-N, N+1):
-            for m3 in range(-N, N+1):
+    for m1 in range(-N, N):
+        for m2 in range(-N, N):
+            for m3 in range(-N, N):
                 m = DIM**2 * (m1 + N) + DIM * (m2 + N) + (m3 + N)
-                energy_values[m] = hbar * m1**2 / 2 + m2 * OMEGA2 + m3 * OMEGA3
+                # energy_values[m] = hbar * m1**2 / 2 + m2 * OMEGA2 + m3 * OMEGA
+                energy_values[m] = hbar * m1**2 / 2
     return energy_values
 
 def getInitialState():
@@ -386,14 +387,16 @@ def plotEntropies(entropies, ax = None, save = True, alpha = ALPHA, k = K,
     label = r"$\alpha = $" + f"{alpha:.3f} K = {k:.3f}"
     ax.plot(time, entropies, marker=".", label=label)
     ax.set_xlabel("t")
+    ax.set_yscale("log")
+    ax.set_xscale("log")
     ax.set_ylabel("Entanglement Entropy")
     ax.set_title("Bipartite Entanglement Entropy")
     ax.legend()
 
     if save:
         plt.tight_layout()
-        plt.savefig(f"plots/quasiperiodic_entropies_N{N}_ALPHA{alpha:.3f}.pdf")
-        plt.savefig(f"plots/quasiperiodic_entropies_N{N}_ALPHA{alpha:.3f}.svg")
+        plt.savefig(f"plots/quasiperiodic_entropies_N{N}_ALPHA{alpha:.3f}_power2.pdf")
+        plt.savefig(f"plots/quasiperiodic_entropies_N{N}_ALPHA{alpha:.3f}_power2.svg")
 
 def plotEnergies(energies, ax = None, save = True, alpha = ALPHA, k =K,
     **params):
@@ -404,6 +407,8 @@ def plotEnergies(energies, ax = None, save = True, alpha = ALPHA, k =K,
     time = np.arange(1, timesteps+1)
     label = r"$\alpha = $" + f"{alpha:.3f} K = {k:.3f}"
     ax.plot(time, energies, marker=".", label=label)
+    ax.set_xscale("log")
+    ax.set_yscale("log")
     ax.set_xlabel("t")
     ax.set_ylabel("Energy")
     ax.set_title("Energy Evolution")
@@ -411,8 +416,8 @@ def plotEnergies(energies, ax = None, save = True, alpha = ALPHA, k =K,
 
     if save:
         plt.tight_layout()
-        plt.savefig(f"plots/quasiperiodic_energies_N{N}_ALPHA{alpha:.3f}.pdf")
-        plt.savefig(f"plots/quasiperiodic_energies_N{N}_ALPHA{alpha:.3f}.svg")
+        plt.savefig(f"plots/quasiperiodic_energies_N{N}_ALPHA{alpha:.3f}_power2.pdf")
+        plt.savefig(f"plots/quasiperiodic_energies_N{N}_ALPHA{alpha:.3f}_power2.svg")
 
 
 def plotMomentum(momentum, ax = None, save = True, alpha = ALPHA, k = K,
@@ -420,7 +425,7 @@ def plotMomentum(momentum, ax = None, save = True, alpha = ALPHA, k = K,
     if ax is None:
         ax = plt.gca()
 
-    p = np.arange(-N, N+1)
+    p = np.arange(-N, N)
     label = r"$\alpha = $" + f"{alpha:.3f} K = {k:.3f}"
     ax.plot(p, momentum, marker=".", label=label)
     ax.set_xlabel(r"$\frac{p}{\hbar}$")
@@ -431,8 +436,8 @@ def plotMomentum(momentum, ax = None, save = True, alpha = ALPHA, k = K,
 
     if save:
         plt.tight_layout()
-        plt.savefig(f"plots/quasiperiodic_momenta_N{N}_ALPHA{alpha:.3f}.pdf")
-        plt.savefig(f"plots/quasiperiodic_momenta_N{N}_ALPHA{alpha:.3f}.svg")
+        plt.savefig(f"plots/quasiperiodic_momenta_N{N}_ALPHA{alpha:.3f}_power2.pdf")
+        plt.savefig(f"plots/quasiperiodic_momenta_N{N}_ALPHA{alpha:.3f}_power2.svg")
 
 def plotEnergyDiffs(energy_diffs, k_vals, timesteps, ax, critical_index):
     k_lowers = k_vals[:-1]
@@ -574,11 +579,11 @@ def main():
 
     # fig, ax = plt.subplots(nrows=2, ncols=2, figsize=(8, 4.5))
     plt.figure(figsize=(8, 4.5))
-    plotEntropies(entropies, save=False, **params)
+    plotEntropies(entropies, save=True, **params)
     plt.figure(figsize=(8, 4.5))
-    plotEnergies(energies, save=False, **params)
+    plotEnergies(energies, save=True, **params)
     plt.figure(figsize=(8, 4.5))
-    plotMomentum(final_p1, save=False, **params)
+    plotMomentum(final_p1, save=True, **params)
 
     # plt.tight_layout()
     # plt.savefig(f"plots/quasiperiodic_plots_N{N}_ALPHA{ALPHA:.3f}_K{K:.1f}.pdf")

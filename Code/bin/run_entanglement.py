@@ -9,25 +9,26 @@ import matplotlib.pyplot as plt
 from cycler import cycler
 import seaborn as sns
 import kickedrotor.bipartite_entanglement as rotor
+from pandas import DataFrame
 
 # Parameters
 omega2 = 2 * np.pi * np.sqrt(5)
 omega3 = 2 * np.pi * np.sqrt(13)
 hbar = 2.85
 k_critical = 6.36
-k_min = k_critical - 2
-k_max = k_critical + 2
+k_min = k_critical - 1
+k_max = k_critical + 1
 alpha_critical = 0.4303
 alpha_min = alpha_critical - 0.2
 alpha_max = alpha_critical + 0.2
-samples = 11 # Must be odd
-timesteps = 80
+samples = 5 # Must be odd
+timesteps = 420
 
 # Data files
 save_data = True
 save_plot = True
-datafile_basename = "data/entanglement_multiK_multiAlpha"
-plotfile_basename = "plots/entanglement_multiK_multiAlpha"
+datafile_basename = "data/entanglement_multiK_multiAlpha_power2"
+plotfile_basename = "plots/entanglement_multiK_multiAlpha_power2"
 
 
 
@@ -76,7 +77,7 @@ for i in range(samples):
     rotor.plotEntropies(entropies, ax = axs[1], save = False, **params)
     rotor.plotMomentum(final_p1, ax = axs[2], save = False, **params)
 
-for ax in axs[:2]: ax.set_yscale("log")
+# for ax in axs[:2]: ax.set_yscale("log")
 
 energy_collection = np.array(energy_collection)
 energy_diffs = np.diff(energy_collection, axis=0)
@@ -96,18 +97,31 @@ if save_plot:
         figs[i].savefig(filename+".svg")
 
 if save_data:
-    filename = f"{datafile_basename}_N{rotor.N}_T{timesteps}.dat"
-    datafile = open(filename, "w")
-    datafile.write(f"# Timesteps: {timesteps} DIM: {rotor.DIM} Samples: {samples}\n")
-    datafile.write("# K\n")
-    np.savetxt(datafile, k_vals)
-    datafile.write("\n# Alpha\n")
-    np.savetxt(datafile, alpha_vals)
-    datafile.write("\n# Energies\n")
-    np.savetxt(datafile, energy_collection)
-    datafile.write("\n# Entropies\n")
-    np.savetxt(datafile, entropy_collection)
+    filename = f"{datafile_basename}_N{rotor.N}_T{timesteps}.npz"
+    kwargs = {
+        "k_vals": k_vals,
+        "alpha_vals": alpha_vals,
+        "energy_collection": energy_collection,
+        "entropy_collection": entropy_collection
+    }
+    np.savez(filename, **kwargs)
 
 
+    # df = DataFrame({"k": k_vals,
+    #                 "alpha": alpha_vals,
+    #                 "energies": energy_collection,
+    #                 "entropies": entropy_collection
+    #                 })
+    # df.to_csv(filename)
+    # datafile.write(f"# Timesteps: {timesteps} DIM: {rotor.DIM} Samples: {samples}\n")
+    # datafile.write("# K\n")
+    # np.savetxt(datafile, k_vals)
+    # datafile.write("\n# Alpha\n")
+    # np.savetxt(datafile, alpha_vals)
+    # datafile.write("\n# Energies\n")
+    # np.savetxt(datafile, energy_collection)
+    # datafile.write("\n# Entropies\n")
+    # np.savetxt(datafile, entropy_collection)
 
-plt.show()
+plt.close()
+# plt.show()

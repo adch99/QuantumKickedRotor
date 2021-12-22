@@ -1,0 +1,10 @@
+bin
+data
+docs
+kickedrotor
+logs
+makefile
+notebooks
+plots
+setup.py
+tests
